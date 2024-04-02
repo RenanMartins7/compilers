@@ -1,6 +1,6 @@
 /*Declarations and inclusion in C*/
 %{
-#include "y.tab.h"
+#include "parser.tab.h"
 %}
 
 

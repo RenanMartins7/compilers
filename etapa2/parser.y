@@ -1,6 +1,7 @@
 %{
 int yylex(void);
 void yyerror (char const *mensagem);
+#include<stdio.h>
 %}
 
 %token TK_PR_INT
@@ -29,3 +30,8 @@ programa:
 
 %%
 
+
+void yyerror(const char* mensagem){
+
+	printf("tchau");
+}
