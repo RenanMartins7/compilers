@@ -250,7 +250,7 @@ expressao_div_mult: expressao_div_mult '*' expressao_unaria
 					| expressao_div_mult '%' expressao_unaria
 					| expressao_unaria
 
-expressao_unaria: 	| '~' expressao_unaria
+expressao_unaria: 	 '~' expressao_unaria
 					| '!' expressao_unaria
 					| valor
 					| '(' expressao ')'
