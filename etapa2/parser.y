@@ -1,10 +1,16 @@
+
+/*Projeto para a cadeira de compiladores INF01147 */
+/*Grupo H: Renan Martins Alves / Marcel Ramos do Carmo*/
+
+
 %{
+/*Definições em C, bibliotecas e variáveis externas*/
 int yylex(void);
 void yyerror (char const *mensagem);
 extern int yylineno;
-#include<stdio.h>
+#include <stdio.h>
 %}
-
+/*Opções do Bison*/
 %define parse.error verbose
 
 %token TK_PR_INT
@@ -165,7 +171,7 @@ atribuicao_variavel: TK_IDENTIFICADOR '=' expressao
 Comando de Retorno: Trata-se do token return
 seguido de uma expressão.
 */
-comando_return: TK_PR_RETURN expressao ','
+comando_return: TK_PR_RETURN expressao 
 
 /*
 Chamada de Função: Uma chamada de função
@@ -175,8 +181,12 @@ vírgula. Um argumento pode ser uma expressão.
 */
 chamada_funcao: TK_IDENTIFICADOR '(' argumentos_chamada_funcao ')' 
 
+
+
 argumentos_chamada_funcao: expressao lista_argumentos_chamada_funcao
 							|
+
+
 lista_argumentos_chamada_funcao: ';' expressao lista_argumentos_chamada_funcao
 								|
 
@@ -189,14 +199,19 @@ o else seja empregado.
 */
 comando_condicional: TK_PR_IF '(' expressao ')' bloco_de_comandos comando_else
 
+
 comando_else: TK_PR_ELSE bloco_de_comandos
 				|
+
+
 /*
 Temos apenas uma construção de repetição que é o token while seguido
 de uma expressão entre parênteses e de um bloco
 de comandos.
 */
 comando_while: TK_PR_WHILE '(' expressao ')' bloco_de_comandos
+
+
 
 
 

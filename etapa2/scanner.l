@@ -1,3 +1,10 @@
+/*Projeto para a cadeira de compiladores INF01147 */
+/*Grupo H: Renan Martins Alves / Marcel Ramos do Carmo*/
+
+
+
+
+
 /*Declarations and inclusion in C*/
 %{
 #include "parser.tab.h"
