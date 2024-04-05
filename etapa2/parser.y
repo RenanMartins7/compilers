@@ -206,7 +206,7 @@ Expressões tem operandos e operadores, sendo
 este opcional. Os operandos podem ser (a) identi-
 ficadores, (b) literais e (c) chamada de função
 */
-expressao:  expressao TK_OC_OR valor
+/*expressao:  expressao TK_OC_OR valor
 		| expressao TK_OC_AND valor
 		| expressao TK_OC_NE valor
 		| expressao TK_OC_EQ valor
@@ -221,38 +221,39 @@ expressao:  expressao TK_OC_OR valor
 		| expressao '%' valor
 		//| '~' expressao
 		//| '(' expressao ')'
-		| valor
+		| valor*/
 
-/*expressao: expressao_or
-		| expressao_and
-		| expressao_eq_ne
-		| expressao_comparativa
-		| expressao_soma_sub
-		| expressao_div_mult
-		| expressao_unaria
-		| valor
+expressao: expressao_or
+
 expressao_or: 		expressao_or TK_OC_OR expressao_and
 					| expressao_and
+
 expressao_and: 		expressao_and TK_OC_AND expressao_eq_ne
 					| expressao_eq_ne
+
 expressao_eq_ne: 	expressao_eq_ne TK_OC_EQ expressao_comparativa
 					| expressao_eq_ne TK_OC_NE expressao_comparativa
 					| expressao_comparativa
+
 expressao_comparativa: expressao_comparativa TK_OC_LE expressao_soma_sub
 					| expressao_comparativa TK_OC_GE expressao_soma_sub
 					| expressao_comparativa '>' expressao_soma_sub
 					| expressao_comparativa '<' expressao_soma_sub
 					| expressao_soma_sub
+
 expressao_soma_sub: expressao_soma_sub '+' expressao_div_mult
 					| expressao_soma_sub '-' expressao_div_mult
 					| expressao_div_mult
+
 expressao_div_mult: expressao_div_mult '*' expressao_unaria
 					| expressao_div_mult '/' expressao_unaria
 					| expressao_div_mult '%' expressao_unaria
 					| expressao_unaria
+
 expressao_unaria: 	| '~' expressao_unaria
 					| '!' expressao_unaria
-					| valor*/
+					| valor
+					| '(' expressao ')'
 
 
 valor: TK_IDENTIFICADOR
