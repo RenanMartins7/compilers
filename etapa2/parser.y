@@ -101,7 +101,7 @@ nido pelo seu tipo e nome.
 parametros_dec_funcao: tipo TK_IDENTIFICADOR lista_parametros_dec_funcao
 					|
 
-lista_parametros_dec_funcao: ',' tipo TK_IDENTIFICADOR lista_parametros_dec_funcao
+lista_parametros_dec_funcao: ';' tipo TK_IDENTIFICADOR lista_parametros_dec_funcao
 							| 
 
 
@@ -221,22 +221,6 @@ Expressões tem operandos e operadores, sendo
 este opcional. Os operandos podem ser (a) identi-
 ficadores, (b) literais e (c) chamada de função
 */
-/*expressao:  expressao TK_OC_OR valor
-		| expressao TK_OC_AND valor
-		| expressao TK_OC_NE valor
-		| expressao TK_OC_EQ valor
-		| expressao TK_OC_LE valor
-		| expressao TK_OC_GE valor
-		| expressao '<' valor
-		| expressao '>' valor
-		| expressao '+' valor
-		| expressao '-' valor
-		| expressao '*' valor
-		| expressao '/' valor
-		| expressao '%' valor
-		//| '~' expressao
-		//| '(' expressao ')'
-		| valor*/
 
 expressao: expressao_or
 

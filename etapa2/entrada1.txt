@@ -1,70 +1,19 @@
-/*
-
-
-
-
-
-
-
-
-
-
-*/
-
-int a,
-
-() | int / carlos{
-
+(int a; int b) | int / main{
+	
+	
+	
 	int a,
-	bool b,
+	bool f,
+	carlos(a;b),
+	
+	{return carlos,},
+	
+	while(true){},
+	
+	if(a){},
+	
+	 a = a,
 	
 	
-	a = (a)+ 12.2 + booleano + (carlos(a+12.2+francisco)*(manuel)),
-	
-	carlos(),
-	
-	
-	if(a){}else{},
-	
-	while(a){},
-	{{},},
-
-}
-
-
-float a,
-bool olha;sinceramente;brito;por;mim;podiam;sair;as;duas,
-
-
-(int a) | bool /carlos{
-
-	float arabesto;flores;marcos,
-	
-	if(true == false & note | (marcos != flavio) >= sergio <= true){},
-	
-	if(true){
-	
-		int a,
-		a = 0,
-		
-		b = b + carlos(),
-	
-	
-	},
-	
-	while(true){
-	
-		if(true){
-	
-			int a,
-			a = 0,
-		
-			b = b + carlos(),
-	
-	
-			},
-	
-		},
-
-
+	//if(carlos() + 12 * (12)){int a,},
 }
