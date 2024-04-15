@@ -12,8 +12,12 @@
 	
 	if(a){},
 	
-	 a = a,
-	
+	 a = !a | (b & 2),
+	 
+	 u = !carlos(a;b;n;bv;c),
+	 	
 	
 	//if(carlos() + 12 * (12)){int a,},
 }
+
+int a,
