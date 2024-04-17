@@ -9,6 +9,7 @@ int yylex(void);
 void yyerror (char const *mensagem);
 extern int yylineno;
 #include <stdio.h>
+#include "ast.h"
 %}
 /*Opções do Bison*/
 %define parse.error verbose
@@ -269,4 +270,8 @@ valor: TK_IDENTIFICADOR
 void yyerror(const char* mensagem){
 
 	printf("\nError on line %d: %s\n", yylineno, mensagem);
+}
+
+void exporta(void *arvore){
+
 }
