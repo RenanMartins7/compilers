@@ -14,25 +14,84 @@ extern int yylineno;
 /*Opções do Bison*/
 %define parse.error verbose
 
-%token TK_PR_INT
-%token TK_PR_FLOAT
-%token TK_PR_BOOL
-%token TK_PR_IF
-%token TK_PR_ELSE
-%token TK_PR_WHILE
-%token TK_PR_RETURN
-%token TK_OC_LE
-%token TK_OC_GE
-%token TK_OC_EQ
-%token TK_OC_NE
-%token TK_OC_AND
-%token TK_OC_OR
-%token TK_IDENTIFICADOR
-%token TK_LIT_INT
-%token TK_LIT_FLOAT
-%token TK_LIT_FALSE
-%token TK_LIT_TRUE
-%token TK_ERRO
+
+/*  O tipo do campo valor_lexico (e por consequência o valor que será retido) deve ser uma estrutura de dados
+(struct) que contém os seguintes campos: (a) número da linha onde apareceu o lexema; (b) tipo do token
+(identificador ou literal); (c) valor do token. O valor do token é uma cadeia de caracteres (duplicada com
+strdup a partir de yytext) para todos os tipos de tokens.
+*/
+%code requires {
+    struct valor_lexico {
+        int line_of_appearance;
+        int token_type
+        string /*???*/ token_value;
+    };
+}
+
+/* Devemos fazer tal associação no analisador léxico (alterações no arquivo scanner.l), atribuindo um
+valor para a variável global yylval. Esta variá- vel deve ser configurada com a diretiva %union no
+parser.y. */
+%union {
+  valor_lexico valor;
+  asd_tree_t *arvore;
+}
+%token<valor> TK_PR_INT
+%token<valor> TK_PR_FLOAT
+%token<valor> TK_PR_BOOL
+%token<valor> TK_PR_IF
+%token<valor> TK_PR_ELSE
+%token<valor> TK_PR_WHILE
+%token<valor> TK_PR_RETURN
+%token<valor> TK_OC_LE
+%token<valor> TK_OC_GE
+%token<valor> TK_OC_EQ
+%token<valor> TK_OC_NE
+%token<valor> TK_OC_AND
+%token<valor> TK_OC_OR
+%token<valor> TK_IDENTIFICADOR
+%token<valor> TK_LIT_INT
+%token<valor> TK_LIT_FLOAT
+%token<valor> TK_LIT_FALSE
+%token<valor> TK_LIT_TRUE
+%token<valor> TK_ERRO
+/*
+%type<arvore> programa
+%type<arvore> declaracao_global
+%type<arvore> declaracao_funcao
+%type<arvore> lista_variaveis_globais
+%type<arvore> tipo
+%type<arvore> parametros_dec_funcao
+%type<arvore> bloco_de_comandos
+%type<arvore> lista_parametros_dec_funcao
+%type<arvore> lista_de_comandos
+%type<arvore> comando_simples
+%type<arvore> declaracao_variavel
+%type<arvore> atribuicao_variavel
+%type<arvore> chamada_funcao
+%type<arvore> comando_return
+%type<arvore> comando_condicional
+%type<arvore> comando_while
+%type<arvore> bloco_de_comandos
+%type<arvore> lista_declaracao_variaveis
+%type<arvore> atribuicao_variavel
+%type<arvore> expressao 
+%type<arvore> comando_return
+%type<arvore> chamada_funcao
+%type<arvore> argumentos_chamada_funcao
+%type<arvore> lista_argumentos_chamada_funcao
+%type<arvore> comando_condicional
+%type<arvore> comando_else
+%type<arvore> comando_while
+%type<arvore> expressao_or
+%type<arvore> expressao_and
+%type<arvore> expressao_eq_ne
+%type<arvore> expressao_comparativa
+%type<arvore> expressao_soma_sub
+%type<arvore> expressao_div_mult
+%type<arvore> expressao_unaria
+%type<arvore> valor
+
+*/
 
 %%
 
