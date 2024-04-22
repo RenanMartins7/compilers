@@ -9,10 +9,8 @@ int yylex(void);
 void yyerror (char const *mensagem);
 extern int yylineno;
 #include <stdio.h>
-#include "ast.h"
-%}
-/*Opções do Bison*/
-%define parse.error verbose
+#include "asd.h"
+
 
 
 /*  O tipo do campo valor_lexico (e por consequência o valor que será retido) deve ser uma estrutura de dados
@@ -20,12 +18,21 @@ extern int yylineno;
 (identificador ou literal); (c) valor do token. O valor do token é uma cadeia de caracteres (duplicada com
 strdup a partir de yytext) para todos os tipos de tokens.
 */
-%code requires {
-    struct valor_lexico {
-        int line_of_appearance;
-        int token_type
-        string /*???*/ token_value;
-    };
+
+
+
+%}
+/*Opções do Bison*/
+%define parse.error verbose
+
+%code requires{
+	#include "asd.h"
+
+	typedef struct valor_l{
+	int line_of_appearance;
+    int token_type;
+    char *token_value;
+}valor_lexico;
 }
 
 /* Devemos fazer tal associação no analisador léxico (alterações no arquivo scanner.l), atribuindo um
@@ -35,25 +42,25 @@ parser.y. */
   valor_lexico valor;
   asd_tree_t *arvore;
 }
-%token<valor> TK_PR_INT
-%token<valor> TK_PR_FLOAT
-%token<valor> TK_PR_BOOL
-%token<valor> TK_PR_IF
-%token<valor> TK_PR_ELSE
-%token<valor> TK_PR_WHILE
-%token<valor> TK_PR_RETURN
-%token<valor> TK_OC_LE
-%token<valor> TK_OC_GE
-%token<valor> TK_OC_EQ
-%token<valor> TK_OC_NE
-%token<valor> TK_OC_AND
-%token<valor> TK_OC_OR
+%token TK_PR_INT
+%token TK_PR_FLOAT
+%token TK_PR_BOOL
+%token TK_PR_IF
+%token TK_PR_ELSE
+%token TK_PR_WHILE
+%token TK_PR_RETURN
+%token TK_OC_LE
+%token TK_OC_GE
+%token TK_OC_EQ
+%token TK_OC_NE
+%token TK_OC_AND
+%token TK_OC_OR
 %token<valor> TK_IDENTIFICADOR
 %token<valor> TK_LIT_INT
 %token<valor> TK_LIT_FLOAT
 %token<valor> TK_LIT_FALSE
 %token<valor> TK_LIT_TRUE
-%token<valor> TK_ERRO
+%token TK_ERRO
 /*
 %type<arvore> programa
 %type<arvore> declaracao_global
@@ -67,21 +74,15 @@ parser.y. */
 %type<arvore> comando_simples
 %type<arvore> declaracao_variavel
 %type<arvore> atribuicao_variavel
-%type<arvore> chamada_funcao
+
 %type<arvore> comando_return
 %type<arvore> comando_condicional
 %type<arvore> comando_while
-%type<arvore> bloco_de_comandos
 %type<arvore> lista_declaracao_variaveis
-%type<arvore> atribuicao_variavel
 %type<arvore> expressao 
-%type<arvore> comando_return
-%type<arvore> chamada_funcao
 %type<arvore> argumentos_chamada_funcao
 %type<arvore> lista_argumentos_chamada_funcao
-%type<arvore> comando_condicional
 %type<arvore> comando_else
-%type<arvore> comando_while
 %type<arvore> expressao_or
 %type<arvore> expressao_and
 %type<arvore> expressao_eq_ne
@@ -89,9 +90,11 @@ parser.y. */
 %type<arvore> expressao_soma_sub
 %type<arvore> expressao_div_mult
 %type<arvore> expressao_unaria
+*/
+%type<arvore> chamada_funcao
 %type<arvore> valor
 
-*/
+
 
 %%
 
@@ -315,12 +318,12 @@ expressao_unaria: 	 '-' expressao_unaria
 					| '(' expressao ')'
 
 
-valor: TK_IDENTIFICADOR
-	| TK_LIT_FLOAT
-	| TK_LIT_INT
-	| TK_LIT_FALSE
-	| TK_LIT_TRUE
-	| chamada_funcao
+valor: TK_IDENTIFICADOR {$$ = asd_new($1.token_value);}
+	| TK_LIT_FLOAT		{$$ = asd_new($1.token_value);}
+	| TK_LIT_INT		{$$ = asd_new($1.token_value);}
+	| TK_LIT_FALSE		{$$ = asd_new($1.token_value);}
+	| TK_LIT_TRUE		{$$ = asd_new($1.token_value);}
+	| chamada_funcao	{$$ = $1;}
 
 
 %%

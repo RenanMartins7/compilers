@@ -74,9 +74,20 @@ int yylex(void);
 void yyerror (char const *mensagem);
 extern int yylineno;
 #include <stdio.h>
-#include "ast.h"
+#include "asd.h"
 
-#line 80 "parser.tab.c"
+
+
+/*  O tipo do campo valor_lexico (e por consequência o valor que será retido) deve ser uma estrutura de dados
+(struct) que contém os seguintes campos: (a) número da linha onde apareceu o lexema; (b) tipo do token
+(identificador ou literal); (c) valor do token. O valor do token é uma cadeia de caracteres (duplicada com
+strdup a partir de yytext) para todos os tipos de tokens.
+*/
+
+
+
+
+#line 91 "parser.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -558,13 +569,13 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,    49,    49,    50,    51,    63,    65,    66,    75,    76,
-      77,    92,   105,   106,   108,   109,   127,   129,   130,   145,
-     146,   147,   148,   149,   150,   151,   161,   163,   164,   172,
-     178,   186,   190,   191,   194,   195,   204,   207,   208,   216,
-     229,   231,   232,   234,   235,   237,   238,   239,   241,   242,
-     243,   244,   245,   247,   248,   249,   251,   252,   253,   254,
-     256,   257,   258,   259,   262,   263,   264,   265,   266,   267
+       0,   108,   108,   109,   110,   122,   124,   125,   134,   135,
+     136,   151,   164,   165,   167,   168,   186,   188,   189,   204,
+     205,   206,   207,   208,   209,   210,   220,   222,   223,   231,
+     237,   245,   249,   250,   253,   254,   263,   266,   267,   275,
+     288,   290,   291,   293,   294,   296,   297,   298,   300,   301,
+     302,   303,   304,   306,   307,   308,   310,   311,   312,   313,
+     315,   316,   317,   318,   321,   322,   323,   324,   325,   326
 };
 #endif
 
@@ -1477,8 +1488,44 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
+  case 64: /* valor: TK_IDENTIFICADOR  */
+#line 321 "parser.y"
+                        {(yyval.arvore) = asd_new((yyvsp[0].valor).token_value);}
+#line 1495 "parser.tab.c"
+    break;
 
-#line 1482 "parser.tab.c"
+  case 65: /* valor: TK_LIT_FLOAT  */
+#line 322 "parser.y"
+                                {(yyval.arvore) = asd_new((yyvsp[0].valor).token_value);}
+#line 1501 "parser.tab.c"
+    break;
+
+  case 66: /* valor: TK_LIT_INT  */
+#line 323 "parser.y"
+                                {(yyval.arvore) = asd_new((yyvsp[0].valor).token_value);}
+#line 1507 "parser.tab.c"
+    break;
+
+  case 67: /* valor: TK_LIT_FALSE  */
+#line 324 "parser.y"
+                                {(yyval.arvore) = asd_new((yyvsp[0].valor).token_value);}
+#line 1513 "parser.tab.c"
+    break;
+
+  case 68: /* valor: TK_LIT_TRUE  */
+#line 325 "parser.y"
+                                {(yyval.arvore) = asd_new((yyvsp[0].valor).token_value);}
+#line 1519 "parser.tab.c"
+    break;
+
+  case 69: /* valor: chamada_funcao  */
+#line 326 "parser.y"
+                                {(yyval.arvore) = (yyvsp[0].arvore);}
+#line 1525 "parser.tab.c"
+    break;
+
+
+#line 1529 "parser.tab.c"
 
       default: break;
     }
@@ -1702,7 +1749,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 270 "parser.y"
+#line 329 "parser.y"
 
 
 

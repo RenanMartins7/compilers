@@ -53,8 +53,14 @@ return      {return TK_PR_RETURN;}
 
 
  /**Literals false and true*/
-false       {return TK_LIT_FALSE;}
-true        {return TK_LIT_TRUE;}
+false       {   yylval.valor.line_of_appearance = yylineno;
+                yylval.valor.token_type = 4;
+                yylval.valor.token_value = strdup(yytext);
+                return TK_LIT_FALSE;}
+true        {   yylval.valor.line_of_appearance = yylineno;
+                yylval.valor.token_type = 5;
+                yylval.valor.token_value = strdup(yytext);
+                return TK_LIT_TRUE;}
 
 
 
@@ -74,13 +80,22 @@ true        {return TK_LIT_TRUE;}
 
 
  /**Identifiers*/
-[_a-z][_a-z0-9]* {return TK_IDENTIFICADOR;}
+[_a-z][_a-z0-9]* {yylval.valor.line_of_appearance = yylineno;
+                yylval.valor.token_type = 1;
+                yylval.valor.token_value = strdup(yytext);
+                ;return TK_IDENTIFICADOR;}
 
 
 
  /**Literals float and int*/
-[0-9]+      {return TK_LIT_INT;}
-[0-9]*"."[0-9]+ {return TK_LIT_FLOAT;}
+[0-9]+          {yylval.valor.line_of_appearance = yylineno;
+                yylval.valor.token_type = 2;
+                yylval.valor.token_value = strdup(yytext);
+                return TK_LIT_INT;}
+[0-9]*"."[0-9]+ {yylval.valor.line_of_appearance = yylineno;
+                yylval.valor.token_type = 3;
+                yylval.valor.token_value = strdup(yytext);
+                return TK_LIT_FLOAT;}
 
 
 

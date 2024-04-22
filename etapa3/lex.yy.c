@@ -892,79 +892,94 @@ YY_RULE_SETUP
 case 15:
 YY_RULE_SETUP
 #line 57 "scanner.l"
-{return TK_LIT_FALSE;}
+{   yylval.valor.line_of_appearance = yylineno;
+                yylval.valor.token_type = 4;
+                yylval.valor.token_value = strdup(yytext);
+                return TK_LIT_FALSE;}
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 58 "scanner.l"
-{return TK_LIT_TRUE;}
+#line 61 "scanner.l"
+{   yylval.valor.line_of_appearance = yylineno;
+                yylval.valor.token_type = 5;
+                yylval.valor.token_value = strdup(yytext);
+                return TK_LIT_TRUE;}
 	YY_BREAK
 /**Special caracters*/
 case 17:
 YY_RULE_SETUP
-#line 63 "scanner.l"
+#line 69 "scanner.l"
 {return yytext[0];}
 	YY_BREAK
 /**Compound operators*/
 case 18:
 YY_RULE_SETUP
-#line 68 "scanner.l"
+#line 74 "scanner.l"
 {return TK_OC_LE;}
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 69 "scanner.l"
+#line 75 "scanner.l"
 {return TK_OC_GE;}
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 70 "scanner.l"
+#line 76 "scanner.l"
 {return TK_OC_EQ;}
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 71 "scanner.l"
+#line 77 "scanner.l"
 {return TK_OC_NE;}
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 72 "scanner.l"
+#line 78 "scanner.l"
 {return TK_OC_AND;}
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 73 "scanner.l"
+#line 79 "scanner.l"
 {return TK_OC_OR;}
 	YY_BREAK
 /**Identifiers*/
 case 24:
 YY_RULE_SETUP
-#line 78 "scanner.l"
-{return TK_IDENTIFICADOR;}
+#line 84 "scanner.l"
+{yylval.valor.line_of_appearance = yylineno;
+                yylval.valor.token_type = 1;
+                yylval.valor.token_value = strdup(yytext);
+                ;return TK_IDENTIFICADOR;}
 	YY_BREAK
 /**Literals float and int*/
 case 25:
 YY_RULE_SETUP
-#line 83 "scanner.l"
-{return TK_LIT_INT;}
+#line 92 "scanner.l"
+{yylval.valor.line_of_appearance = yylineno;
+                yylval.valor.token_type = 2;
+                yylval.valor.token_value = strdup(yytext);
+                return TK_LIT_INT;}
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 84 "scanner.l"
-{return TK_LIT_FLOAT;}
+#line 96 "scanner.l"
+{yylval.valor.line_of_appearance = yylineno;
+                yylval.valor.token_type = 3;
+                yylval.valor.token_value = strdup(yytext);
+                return TK_LIT_FLOAT;}
 	YY_BREAK
 /*Error token*/
 case 27:
 YY_RULE_SETUP
-#line 89 "scanner.l"
+#line 104 "scanner.l"
 {return TK_ERRO;}
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 93 "scanner.l"
+#line 108 "scanner.l"
 ECHO;
 	YY_BREAK
-#line 968 "lex.yy.c"
+#line 983 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(COMMENT):
 	yyterminate();
@@ -1982,7 +1997,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 93 "scanner.l"
+#line 108 "scanner.l"
 
 /*----------------------------------------------------*/
 /*C code*/
