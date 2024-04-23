@@ -4,9 +4,13 @@
 	
 	int a,
 	bool f,
-	carlos(a;b),
+	//carlos(a;b),
 	
 	{return carlos,},
+	
+	f = false,
+	
+	
 	
 	while(true){},
 	
@@ -14,8 +18,9 @@
 	
 	 a = !a | (b & 2),
 	 
-	 u = !carlos(a;b;n;bv;c),
+	 //u = !carlos(a;b;n;bv;c),
 	 	
+	 b = a * 4 + 5 * (2 + 4),
 	
 	//if(carlos() + 12 * (12)){int a,},
 }

@@ -73,24 +73,28 @@ parser.y. */
 %type<arvore> lista_de_comandos
 %type<arvore> comando_simples
 %type<arvore> declaracao_variavel
-%type<arvore> atribuicao_variavel
 
-%type<arvore> comando_return
+
+
 %type<arvore> comando_condicional
 %type<arvore> comando_while
 %type<arvore> lista_declaracao_variaveis
-%type<arvore> expressao 
 %type<arvore> argumentos_chamada_funcao
 %type<arvore> lista_argumentos_chamada_funcao
 %type<arvore> comando_else
+
+
+*/
+%type<arvore> atribuicao_variavel
+%type<arvore> comando_return
 %type<arvore> expressao_or
 %type<arvore> expressao_and
 %type<arvore> expressao_eq_ne
 %type<arvore> expressao_comparativa
 %type<arvore> expressao_soma_sub
 %type<arvore> expressao_div_mult
+%type<arvore> expressao
 %type<arvore> expressao_unaria
-*/
 %type<arvore> chamada_funcao
 %type<arvore> valor
 
@@ -228,13 +232,13 @@ Comando de Atribuição: O comando de atribui-
 ção consiste em um identificador seguido pelo ca-
 ractere de igualdade seguido por uma expressão.
 */
-atribuicao_variavel: TK_IDENTIFICADOR '=' expressao 
+atribuicao_variavel: TK_IDENTIFICADOR '=' expressao {$$ = asd_add_child(asd_new("="), $3);}
 
 /*
 Comando de Retorno: Trata-se do token return
 seguido de uma expressão.
 */
-comando_return: TK_PR_RETURN expressao 
+comando_return: TK_PR_RETURN expressao {$$ = asd_add_child(asd_new("return"), $2);}
 
 /*
 Chamada de Função: Uma chamada de função
@@ -242,12 +246,11 @@ consiste no nome da função, seguida de argu-
 mentos entre parênteses separados por ponto-e-
 vírgula. Um argumento pode ser uma expressão.
 */
-chamada_funcao: TK_IDENTIFICADOR '(' argumentos_chamada_funcao ')' 
+chamada_funcao: TK_IDENTIFICADOR '(' argumentos_chamada_funcao ')'
 
 
-
-argumentos_chamada_funcao: expressao lista_argumentos_chamada_funcao
-							|
+argumentos_chamada_funcao: expressao lista_argumentos_chamada_funcao 
+							| 
 
 
 lista_argumentos_chamada_funcao: ';' expressao lista_argumentos_chamada_funcao
@@ -285,37 +288,37 @@ este opcional. Os operandos podem ser (a) identi-
 ficadores, (b) literais e (c) chamada de função
 */
 
-expressao: expressao_or
+expressao: expressao_or 									{$$ = $1;
+															asd_print($$);}
 
-expressao_or: 		expressao_or TK_OC_OR expressao_and
-					| expressao_and
+expressao_or: 		expressao_or TK_OC_OR expressao_and		{$$ = asd_add_child(asd_add_child(asd_new("|"), $1),$3);}
+					| expressao_and							{$$ = $1;}
 
-expressao_and: 		expressao_and TK_OC_AND expressao_eq_ne
-					| expressao_eq_ne
+expressao_and: 		expressao_and TK_OC_AND expressao_eq_ne	{$$ = asd_add_child(asd_add_child(asd_new("&"), $1),$3);}
+					| expressao_eq_ne						{$$ = $1;}
 
-expressao_eq_ne: 	expressao_eq_ne TK_OC_EQ expressao_comparativa
-					| expressao_eq_ne TK_OC_NE expressao_comparativa
-					| expressao_comparativa
+expressao_eq_ne: 	expressao_eq_ne TK_OC_EQ expressao_comparativa	{$$ = asd_add_child(asd_add_child(asd_new("=="), $1),$3);}
+					| expressao_eq_ne TK_OC_NE expressao_comparativa{$$ = asd_add_child(asd_add_child(asd_new("!="), $1),$3);}
+					| expressao_comparativa							{$$ = $1;}
 
-expressao_comparativa: expressao_comparativa TK_OC_LE expressao_soma_sub
-					| expressao_comparativa TK_OC_GE expressao_soma_sub
-					| expressao_comparativa '>' expressao_soma_sub
-					| expressao_comparativa '<' expressao_soma_sub
-					| expressao_soma_sub
+expressao_comparativa: expressao_comparativa TK_OC_LE expressao_soma_sub {$$ = asd_add_child(asd_add_child(asd_new("<="), $1),$3);}
+					| expressao_comparativa TK_OC_GE expressao_soma_sub  {$$ = asd_add_child(asd_add_child(asd_new(">="), $1),$3);}
+					| expressao_comparativa '>' expressao_soma_sub		 {$$ = asd_add_child(asd_add_child(asd_new(">"), $1),$3);}
+					| expressao_comparativa '<' expressao_soma_sub		 {$$ = asd_add_child(asd_add_child(asd_new("<"), $1),$3);}
+					| expressao_soma_sub								 {$$ = $1;}
 
-expressao_soma_sub: expressao_soma_sub '+' expressao_div_mult
-					| expressao_soma_sub '-' expressao_div_mult
-					| expressao_div_mult
+expressao_soma_sub: expressao_soma_sub '+' expressao_div_mult	{$$ = asd_add_child(asd_add_child(asd_new("+"), $1),$3);}
+					| expressao_soma_sub '-' expressao_div_mult	{$$ = asd_add_child(asd_add_child(asd_new("-"), $1),$3);}
+					| expressao_div_mult						{$$ = $1;}
 
-expressao_div_mult: expressao_div_mult '*' expressao_unaria
-					| expressao_div_mult '/' expressao_unaria
-					| expressao_div_mult '%' expressao_unaria
-					| expressao_unaria
+expressao_div_mult: expressao_div_mult '*' expressao_unaria		{$$ = asd_add_child(asd_add_child(asd_new("*"), $1),$3);}
+					| expressao_div_mult '/' expressao_unaria	{$$ = asd_add_child(asd_add_child(asd_new("/"), $1),$3);}
+					| expressao_div_mult '%' expressao_unaria	{$$ = asd_add_child(asd_add_child(asd_new("%"), $1),$3);}
+					| expressao_unaria							{$$ = $1;}
 
-expressao_unaria: 	 '-' expressao_unaria
-					| '!' expressao_unaria
-					| valor
-					| '(' expressao ')'
+expressao_unaria: 	 '-' expressao_unaria	{$$ = asd_add_child(asd_new("-"), $2);}
+					| '!' expressao_unaria	{$$ = asd_add_child(asd_new("!"), $2);}
+					| valor					{$$ = $1;}
 
 
 valor: TK_IDENTIFICADOR {$$ = asd_new($1.token_value);}
@@ -324,6 +327,7 @@ valor: TK_IDENTIFICADOR {$$ = asd_new($1.token_value);}
 	| TK_LIT_FALSE		{$$ = asd_new($1.token_value);}
 	| TK_LIT_TRUE		{$$ = asd_new($1.token_value);}
 	| chamada_funcao	{$$ = $1;}
+	| '(' expressao ')' {$$ = $2;}
 
 
 %%

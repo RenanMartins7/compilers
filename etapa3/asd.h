@@ -20,7 +20,7 @@ void asd_free(asd_tree_t *tree);
 /*
  * Função asd_add_child, adiciona child como filho de tree.
  */
-void asd_add_child(asd_tree_t *tree, asd_tree_t *child);
+asd_tree_t *asd_add_child(asd_tree_t *tree, asd_tree_t *child);
 
 /*
  * Função asd_print, imprime recursivamente a árvore.
