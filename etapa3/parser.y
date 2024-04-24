@@ -9,7 +9,6 @@ int yylex(void);
 void yyerror (char const *mensagem);
 extern int yylineno;
 #include <stdio.h>
-#include "asd.h"
 
 
 
@@ -26,7 +25,7 @@ strdup a partir de yytext) para todos os tipos de tokens.
 %define parse.error verbose
 
 %code requires{
-	#include "asd.h"
+	#include "ast.h"
 
 	typedef struct valor_l{
 	int line_of_appearance;
@@ -40,7 +39,7 @@ valor para a variável global yylval. Esta variá- vel deve ser configurada com 
 parser.y. */
 %union {
   valor_lexico valor;
-  asd_tree_t *arvore;
+  ast *arvore;
 }
 %token TK_PR_INT
 %token TK_PR_FLOAT
@@ -62,29 +61,35 @@ parser.y. */
 %token<valor> TK_LIT_TRUE
 %token TK_ERRO
 /*
-%type<arvore> programa
+
 %type<arvore> declaracao_global
-%type<arvore> declaracao_funcao
+
 %type<arvore> lista_variaveis_globais
-%type<arvore> tipo
+
 %type<arvore> parametros_dec_funcao
-%type<arvore> bloco_de_comandos
+
 %type<arvore> lista_parametros_dec_funcao
-%type<arvore> lista_de_comandos
+
 %type<arvore> comando_simples
 %type<arvore> declaracao_variavel
-
-
-
 %type<arvore> comando_condicional
-%type<arvore> comando_while
+
 %type<arvore> lista_declaracao_variaveis
-%type<arvore> argumentos_chamada_funcao
-%type<arvore> lista_argumentos_chamada_funcao
-%type<arvore> comando_else
+
 
 
 */
+%type<arvore> raizPrograma
+%type<arvore> programa
+%type<arvore> declaracao_funcao
+%type<arvore> comando_simples
+%type<arvore> comando_else
+%type<arvore> comando_condicional
+%type<arvore> lista_de_comandos
+%type<arvore> bloco_de_comandos
+%type<arvore> comando_while
+%type<arvore> argumentos_chamada_funcao
+%type<arvore> lista_argumentos_chamada_funcao
 %type<arvore> atribuicao_variavel
 %type<arvore> comando_return
 %type<arvore> expressao_or
@@ -109,9 +114,12 @@ clarações de variáveis globais e um conjunto de
 funções. Esses elementos podem estar intercala-
 dos e em qualquer ordem.
 */
-programa: declaracao_global programa
-		| declaracao_funcao programa
-		|
+raizPrograma: programa {ast_print($$);}
+
+
+programa: declaracao_global programa{$$ = $2;}
+		| declaracao_funcao programa{ast_add_child($1, $2);}
+		|							{$$ = NULL;}
 
 
 
@@ -152,7 +160,7 @@ de retorno seguido da barra e o nome da função.
 Tal tipo pode ser int, float e bool. O corpo da função é
 um bloco de comandos.
 */
-declaracao_funcao: '(' parametros_dec_funcao ')' TK_OC_OR tipo '/' TK_IDENTIFICADOR bloco_de_comandos
+declaracao_funcao: '(' parametros_dec_funcao ')' TK_OC_OR tipo '/' TK_IDENTIFICADOR bloco_de_comandos {$$ = $8;}
 
 
 
@@ -187,10 +195,11 @@ mente, e pode ser utilizado em qualquer constru-
 
 */
 
-bloco_de_comandos: '{' lista_de_comandos '}'
+bloco_de_comandos: '{' lista_de_comandos '}' {$$ = $2;}
 
-lista_de_comandos: comando_simples ','  lista_de_comandos
-				|
+lista_de_comandos: comando_simples ','  lista_de_comandos	{if($1 == NULL)$$ = $3;
+															else $$ = ast_add_child($1, $3);}
+				|											{$$ = NULL;}
 
 
 
@@ -205,13 +214,13 @@ bloco de comandos, e chamadas de função
 
 
 
-comando_simples: declaracao_variavel
-				| atribuicao_variavel
-				| chamada_funcao
-				| comando_return
-				| comando_condicional
-				| comando_while
-				| bloco_de_comandos
+comando_simples: declaracao_variavel	{$$ = NULL;}
+				| atribuicao_variavel	{$$ = $1;}
+				| chamada_funcao		{$$ = $1;}
+				| comando_return		{$$ = $1;}
+				| comando_condicional	{$$ = $1;}
+				| comando_while			{$$ = $1;}
+				| bloco_de_comandos		{$$ = $1;}
 
 
 /*
@@ -232,13 +241,15 @@ Comando de Atribuição: O comando de atribui-
 ção consiste em um identificador seguido pelo ca-
 ractere de igualdade seguido por uma expressão.
 */
-atribuicao_variavel: TK_IDENTIFICADOR '=' expressao {$$ = asd_add_child(asd_new("="), $3);}
+atribuicao_variavel: TK_IDENTIFICADOR '=' expressao {$$ = ast_new("=");
+													$$ = ast_add_child($$, ast_new($1.token_value));
+													$$ = ast_add_child($$, $3);}
 
 /*
 Comando de Retorno: Trata-se do token return
 seguido de uma expressão.
 */
-comando_return: TK_PR_RETURN expressao {$$ = asd_add_child(asd_new("return"), $2);}
+comando_return: TK_PR_RETURN expressao {$$ = ast_add_child(ast_new("return"), $2);}
 
 /*
 Chamada de Função: Uma chamada de função
@@ -246,15 +257,16 @@ consiste no nome da função, seguida de argu-
 mentos entre parênteses separados por ponto-e-
 vírgula. Um argumento pode ser uma expressão.
 */
-chamada_funcao: TK_IDENTIFICADOR '(' argumentos_chamada_funcao ')'
+chamada_funcao: TK_IDENTIFICADOR '(' argumentos_chamada_funcao ')' {$$ = ast_add_child(ast_new("call "), $3);
+																	ast_cat_label($$, $1.token_value);}
 
 
-argumentos_chamada_funcao: expressao lista_argumentos_chamada_funcao 
-							| 
+argumentos_chamada_funcao: expressao lista_argumentos_chamada_funcao {$$ = ast_add_child($1,$2);}
+							| {$$ = NULL;}
 
 
-lista_argumentos_chamada_funcao: ';' expressao lista_argumentos_chamada_funcao
-								|
+lista_argumentos_chamada_funcao: ';' expressao lista_argumentos_chamada_funcao{$$ = ast_add_child($2,$3);}
+								|{$$ = NULL;}
 
 /*
  A condicional consiste no token if seguido de uma expres-
@@ -263,11 +275,15 @@ mandos obrigatório. O else, sendo opcional, é se-
 guido de um bloco de comandos, obrigatório caso
 o else seja empregado.
 */
-comando_condicional: TK_PR_IF '(' expressao ')' bloco_de_comandos comando_else
+comando_condicional: TK_PR_IF '(' expressao ')' bloco_de_comandos comando_else	{$$ = ast_new("if");
+																				$$ = ast_add_child($$, $3);
+																				$$ = ast_add_child($$, $5);
+																				$$ = ast_add_child($$, $6);
+}
 
 
-comando_else: TK_PR_ELSE bloco_de_comandos
-				|
+comando_else: TK_PR_ELSE bloco_de_comandos	{$$ = $2;}
+				|							{$$ = NULL;}
 
 
 /*
@@ -275,7 +291,8 @@ Temos apenas uma construção de repetição que é o token while seguido
 de uma expressão entre parênteses e de um bloco
 de comandos.
 */
-comando_while: TK_PR_WHILE '(' expressao ')' bloco_de_comandos
+comando_while: TK_PR_WHILE '(' expressao ')' bloco_de_comandos	{$$ = ast_new("while");
+																$$ = ast_add_child(ast_add_child($$, $3), $5);}
 
 
 
@@ -288,44 +305,43 @@ este opcional. Os operandos podem ser (a) identi-
 ficadores, (b) literais e (c) chamada de função
 */
 
-expressao: expressao_or 									{$$ = $1;
-															asd_print($$);}
+expressao: expressao_or 									{$$ = $1;}
 
-expressao_or: 		expressao_or TK_OC_OR expressao_and		{$$ = asd_add_child(asd_add_child(asd_new("|"), $1),$3);}
+expressao_or: 		expressao_or TK_OC_OR expressao_and		{$$ = ast_add_child(ast_add_child(ast_new("|"), $1),$3);}
 					| expressao_and							{$$ = $1;}
 
-expressao_and: 		expressao_and TK_OC_AND expressao_eq_ne	{$$ = asd_add_child(asd_add_child(asd_new("&"), $1),$3);}
+expressao_and: 		expressao_and TK_OC_AND expressao_eq_ne	{$$ = ast_add_child(ast_add_child(ast_new("&"), $1),$3);}
 					| expressao_eq_ne						{$$ = $1;}
 
-expressao_eq_ne: 	expressao_eq_ne TK_OC_EQ expressao_comparativa	{$$ = asd_add_child(asd_add_child(asd_new("=="), $1),$3);}
-					| expressao_eq_ne TK_OC_NE expressao_comparativa{$$ = asd_add_child(asd_add_child(asd_new("!="), $1),$3);}
+expressao_eq_ne: 	expressao_eq_ne TK_OC_EQ expressao_comparativa	{$$ = ast_add_child(ast_add_child(ast_new("=="), $1),$3);}
+					| expressao_eq_ne TK_OC_NE expressao_comparativa{$$ = ast_add_child(ast_add_child(ast_new("!="), $1),$3);}
 					| expressao_comparativa							{$$ = $1;}
 
-expressao_comparativa: expressao_comparativa TK_OC_LE expressao_soma_sub {$$ = asd_add_child(asd_add_child(asd_new("<="), $1),$3);}
-					| expressao_comparativa TK_OC_GE expressao_soma_sub  {$$ = asd_add_child(asd_add_child(asd_new(">="), $1),$3);}
-					| expressao_comparativa '>' expressao_soma_sub		 {$$ = asd_add_child(asd_add_child(asd_new(">"), $1),$3);}
-					| expressao_comparativa '<' expressao_soma_sub		 {$$ = asd_add_child(asd_add_child(asd_new("<"), $1),$3);}
+expressao_comparativa: expressao_comparativa TK_OC_LE expressao_soma_sub {$$ = ast_add_child(ast_add_child(ast_new("<="), $1),$3);}
+					| expressao_comparativa TK_OC_GE expressao_soma_sub  {$$ = ast_add_child(ast_add_child(ast_new(">="), $1),$3);}
+					| expressao_comparativa '>' expressao_soma_sub		 {$$ = ast_add_child(ast_add_child(ast_new(">"), $1),$3);}
+					| expressao_comparativa '<' expressao_soma_sub		 {$$ = ast_add_child(ast_add_child(ast_new("<"), $1),$3);}
 					| expressao_soma_sub								 {$$ = $1;}
 
-expressao_soma_sub: expressao_soma_sub '+' expressao_div_mult	{$$ = asd_add_child(asd_add_child(asd_new("+"), $1),$3);}
-					| expressao_soma_sub '-' expressao_div_mult	{$$ = asd_add_child(asd_add_child(asd_new("-"), $1),$3);}
+expressao_soma_sub: expressao_soma_sub '+' expressao_div_mult	{$$ = ast_add_child(ast_add_child(ast_new("+"), $1),$3);}
+					| expressao_soma_sub '-' expressao_div_mult	{$$ = ast_add_child(ast_add_child(ast_new("-"), $1),$3);}
 					| expressao_div_mult						{$$ = $1;}
 
-expressao_div_mult: expressao_div_mult '*' expressao_unaria		{$$ = asd_add_child(asd_add_child(asd_new("*"), $1),$3);}
-					| expressao_div_mult '/' expressao_unaria	{$$ = asd_add_child(asd_add_child(asd_new("/"), $1),$3);}
-					| expressao_div_mult '%' expressao_unaria	{$$ = asd_add_child(asd_add_child(asd_new("%"), $1),$3);}
+expressao_div_mult: expressao_div_mult '*' expressao_unaria		{$$ = ast_add_child(ast_add_child(ast_new("*"), $1),$3);}
+					| expressao_div_mult '/' expressao_unaria	{$$ = ast_add_child(ast_add_child(ast_new("/"), $1),$3);}
+					| expressao_div_mult '%' expressao_unaria	{$$ = ast_add_child(ast_add_child(ast_new("%"), $1),$3);}
 					| expressao_unaria							{$$ = $1;}
 
-expressao_unaria: 	 '-' expressao_unaria	{$$ = asd_add_child(asd_new("-"), $2);}
-					| '!' expressao_unaria	{$$ = asd_add_child(asd_new("!"), $2);}
+expressao_unaria: 	 '-' expressao_unaria	{$$ = ast_add_child(ast_new("-"), $2);}
+					| '!' expressao_unaria	{$$ = ast_add_child(ast_new("!"), $2);}
 					| valor					{$$ = $1;}
 
 
-valor: TK_IDENTIFICADOR {$$ = asd_new($1.token_value);}
-	| TK_LIT_FLOAT		{$$ = asd_new($1.token_value);}
-	| TK_LIT_INT		{$$ = asd_new($1.token_value);}
-	| TK_LIT_FALSE		{$$ = asd_new($1.token_value);}
-	| TK_LIT_TRUE		{$$ = asd_new($1.token_value);}
+valor: TK_IDENTIFICADOR {$$ = ast_new($1.token_value);}
+	| TK_LIT_FLOAT		{$$ = ast_new($1.token_value);}
+	| TK_LIT_INT		{$$ = ast_new($1.token_value);}
+	| TK_LIT_FALSE		{$$ = ast_new($1.token_value);}
+	| TK_LIT_TRUE		{$$ = ast_new($1.token_value);}
 	| chamada_funcao	{$$ = $1;}
 	| '(' expressao ')' {$$ = $2;}
 

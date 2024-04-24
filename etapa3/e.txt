@@ -1,28 +1,24 @@
 (int a; int b) | int / main{
 	
-	
-	
-	int a,
-	bool f,
-	//carlos(a;b),
-	
-	{return carlos,},
-	
-	f = false,
-	
-	
-	
-	while(true){},
-	
-	if(a){},
-	
-	 a = !a | (b & 2),
-	 
-	 //u = !carlos(a;b;n;bv;c),
-	 	
-	 b = a * 4 + 5 * (2 + 4),
-	
-	//if(carlos() + 12 * (12)){int a,},
+	if(a){
+	a = 2,
+	}
+	else {
+	a = 3,
+	},
+
 }
 
 int a,
+
+
+(int a; int b) | int / main{
+	
+	if(a){
+	a = 2,
+	}
+	else {
+	a = 3,
+	},
+
+}

@@ -45,9 +45,9 @@
 extern int yydebug;
 #endif
 /* "%code requires" blocks.  */
-#line 28 "parser.y"
+#line 27 "parser.y"
 
-	#include "asd.h"
+	#include "ast.h"
 
 	typedef struct valor_l{
 	int line_of_appearance;
@@ -93,10 +93,10 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 41 "parser.y"
+#line 40 "parser.y"
 
   valor_lexico valor;
-  asd_tree_t *arvore;
+  ast *arvore;
 
 #line 102 "parser.tab.h"
 
