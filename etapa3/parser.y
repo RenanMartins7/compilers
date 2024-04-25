@@ -9,6 +9,7 @@ int yylex(void);
 void yyerror (char const *mensagem);
 extern int yylineno;
 #include <stdio.h>
+extern void *arvore;
 
 
 
@@ -114,7 +115,7 @@ clarações de variáveis globais e um conjunto de
 funções. Esses elementos podem estar intercala-
 dos e em qualquer ordem.
 */
-raizPrograma: programa {ast_print($$);}
+raizPrograma: programa {ast_print($$); arvore = $$;}
 
 
 programa: declaracao_global programa{$$ = $2;}
@@ -355,5 +356,19 @@ void yyerror(const char* mensagem){
 }
 
 void exporta(void *arvore){
+
+	ast* _arvore = (ast*)arvore;
+
+	if(_arvore == NULL) return;
+
+	int i;
+	for(i=0;i<_arvore->number_of_children;i++){
+		printf("%p, %p\n", _arvore, _arvore->children[i]);
+	}
+	printf("%p, [label=\"%s\"]\n", _arvore, _arvore->label);
+	for(i=0;i<_arvore->number_of_children;i++){
+		exporta(_arvore->children[i]);
+	}
+
 
 }

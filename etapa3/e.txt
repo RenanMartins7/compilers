@@ -1,10 +1,10 @@
 (int a; int b) | int / main{
 	
-	if(a){
-	a = 2,
-	}
-	else {
-	a = 3,
+	int a,
+	
+	while(true){
+		carlos(),
+		a = 3,
 	},
 
 }
@@ -14,11 +14,6 @@ int a,
 
 (int a; int b) | int / main{
 	
-	if(a){
-	a = 2,
-	}
-	else {
-	a = 3,
-	},
+	b = tra,
 
 }
