@@ -1,18 +1,19 @@
 (int a; int b) | int / main{
 	
-	int a,
-	
-	while(true){
-		carlos(),
-		a = 3,
+	while(!a+2){
+	a = 2,
 	},
+	a = 2,
+	marcelo(),
+	a = e | e,
+	
 
 }
 
 int a,
 
 
-(int a; int b) | int / main{
+(int a; int b) | int / carlos{
 	
 	b = tra,
 

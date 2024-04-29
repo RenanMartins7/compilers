@@ -63,19 +63,6 @@ parser.y. */
 %token TK_ERRO
 /*
 
-%type<arvore> declaracao_global
-
-%type<arvore> lista_variaveis_globais
-
-%type<arvore> parametros_dec_funcao
-
-%type<arvore> lista_parametros_dec_funcao
-
-%type<arvore> comando_simples
-%type<arvore> declaracao_variavel
-%type<arvore> comando_condicional
-
-%type<arvore> lista_declaracao_variaveis
 
 
 
@@ -115,7 +102,7 @@ clarações de variáveis globais e um conjunto de
 funções. Esses elementos podem estar intercala-
 dos e em qualquer ordem.
 */
-raizPrograma: programa {ast_print($$); arvore = $$;}
+raizPrograma: programa {arvore = $$;}
 
 
 programa: declaracao_global programa{$$ = $2;}
@@ -161,7 +148,7 @@ de retorno seguido da barra e o nome da função.
 Tal tipo pode ser int, float e bool. O corpo da função é
 um bloco de comandos.
 */
-declaracao_funcao: '(' parametros_dec_funcao ')' TK_OC_OR tipo '/' TK_IDENTIFICADOR bloco_de_comandos {$$ = $8;}
+declaracao_funcao: '(' parametros_dec_funcao ')' TK_OC_OR tipo '/' TK_IDENTIFICADOR bloco_de_comandos {$$ = ast_add_child(ast_new($7.token_value), $8);}
 
 
 
@@ -365,7 +352,7 @@ void exporta(void *arvore){
 	for(i=0;i<_arvore->number_of_children;i++){
 		printf("%p, %p\n", _arvore, _arvore->children[i]);
 	}
-	printf("%p, [label=\"%s\"]\n", _arvore, _arvore->label);
+	printf("%p [label=\"%s\"];\n", _arvore, _arvore->label);
 	for(i=0;i<_arvore->number_of_children;i++){
 		exporta(_arvore->children[i]);
 	}

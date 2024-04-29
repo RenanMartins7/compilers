@@ -1,0 +1,21 @@
+0x6373ec0db650, 0x6373ec0db5d0
+0x6373ec0db650, 0x6373ec0db870
+0x6373ec0db650, [label="main"]
+0x6373ec0db5d0, 0x6373ec0db3d0
+0x6373ec0db5d0, 0x6373ec0db430
+0x6373ec0db5d0, [label="while"]
+0x6373ec0db3d0, [label="true"]
+0x6373ec0db430, 0x6373ec0db4f0
+0x6373ec0db430, [label="call carlos"]
+0x6373ec0db4f0, 0x6373ec0db530
+0x6373ec0db4f0, 0x6373ec0db4b0
+0x6373ec0db4f0, [label="="]
+0x6373ec0db530, [label="a"]
+0x6373ec0db4b0, [label="3"]
+0x6373ec0db870, 0x6373ec0db7b0
+0x6373ec0db870, [label="main"]
+0x6373ec0db7b0, 0x6373ec0db7f0
+0x6373ec0db7b0, 0x6373ec0db770
+0x6373ec0db7b0, [label="="]
+0x6373ec0db7f0, [label="b"]
+0x6373ec0db770, [label="tra"]
