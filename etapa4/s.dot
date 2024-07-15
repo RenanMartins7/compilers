@@ -1,0 +1,25 @@
+# Executado assim: ./output2dot.sh 
+# https://graphviz.org/doc/info/lang.html
+digraph {
+  x6373ec0db650 -> x6373ec0db5d0
+  x6373ec0db650 -> x6373ec0db870
+  x6373ec0db650, [label="main"]
+  x6373ec0db5d0 -> x6373ec0db3d0
+  x6373ec0db5d0 -> x6373ec0db430
+  x6373ec0db5d0, [label="while"]
+  x6373ec0db3d0, [label="true"]
+  x6373ec0db430 -> x6373ec0db4f0
+  x6373ec0db430, [label="call carlos"]
+  x6373ec0db4f0 -> x6373ec0db530
+  x6373ec0db4f0 -> x6373ec0db4b0
+  x6373ec0db4f0, [label="="]
+  x6373ec0db530, [label="a"]
+  x6373ec0db4b0, [label="3"]
+  x6373ec0db870 -> x6373ec0db7b0
+  x6373ec0db870, [label="main"]
+  x6373ec0db7b0 -> x6373ec0db7f0
+  x6373ec0db7b0 -> x6373ec0db770
+  x6373ec0db7b0, [label="="]
+  x6373ec0db7f0, [label="b"]
+  x6373ec0db770, [label="tra"]
+}
