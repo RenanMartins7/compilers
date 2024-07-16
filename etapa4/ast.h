@@ -1,12 +1,22 @@
 #ifndef ARVORE_SINTATICA
 #define ARVORE_SINTATICA
 
+#define AST_INT 69
+#define AST_FLOAT 70
+#define AST_BOOL 71
+
 
 typedef struct ast_tree{
     char *label;
     int number_of_children;
     struct ast_tree **children;
 }ast;
+
+typedef struct valor_l{
+	int line_of_appearance;
+    int token_type;
+    char *token_value;
+}valor_lexico;
 
 
 //Cria nova árvore

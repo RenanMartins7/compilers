@@ -9,7 +9,9 @@ int yylex(void);
 void yyerror (char const *mensagem);
 extern int yylineno;
 #include <stdio.h>
+#include "hash.h"
 extern void *arvore;
+pilha* stack;
 
 
 
@@ -27,12 +29,6 @@ strdup a partir de yytext) para todos os tipos de tokens.
 
 %code requires{
 	#include "ast.h"
-
-	typedef struct valor_l{
-	int line_of_appearance;
-    int token_type;
-    char *token_value;
-}valor_lexico;
 }
 
 /* Devemos fazer tal associação no analisador léxico (alterações no arquivo scanner.l), atribuindo um
@@ -102,7 +98,9 @@ clarações de variáveis globais e um conjunto de
 funções. Esses elementos podem estar intercala-
 dos e em qualquer ordem.
 */
-raizPrograma: programa {arvore = $$;}
+raizPrograma: programa 						{stack = pilha_init();
+											 stack = pilha_push(stack, initMe());
+											 arvore = $$;}
 
 
 programa: declaracao_global programa{$$ = $2;}
@@ -113,13 +111,13 @@ programa: declaracao_global programa{$$ = $2;}
 
 
 /*
-As variáveis globais são declaradas pelo tipo se-
-guido de uma lista composta de pelo menos um
-nome de variável (identificador) separadas por
+As variáveis globais são declarad    tree->astType = astType; separadas por
 ponto-e-vírgula.
 */
 
-declaracao_global: tipo TK_IDENTIFICADOR lista_variaveis_globais ','
+declaracao_global: tipo TK_IDENTIFICADOR lista_variaveis_globais ','{
+																	 ;
+																	}
 
 lista_variaveis_globais: ';' TK_IDENTIFICADOR lista_variaveis_globais
 						| 

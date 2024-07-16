@@ -19,7 +19,6 @@ HASH_NODE** initMe(){
 
     return table;
 }
-/*
 int hashAdress(char *text){
     int adress = 1;
     int i;
@@ -28,12 +27,11 @@ int hashAdress(char *text){
     }
     return adress-1;
 }
-
-HASH_NODE *hashFind(char *text){
+HASH_NODE *hashFind(char *text, HASH_NODE** table){
     HASH_NODE *node;
     int adress = hashAdress(text);
 
-    for(node=Table[adress];node;node = node->next){
+    for(node=table[adress];node;node = node->next){
         if(strcmp(node->text,text) == 0){
             return node;
         }
@@ -41,32 +39,75 @@ HASH_NODE *hashFind(char *text){
     return 0;
 }
 
-HASH_NODE *hashInsert(char *text){
+void hashInsert(char *text, HASH_NODE** table, int idNature, valor_lexico data){
     HASH_NODE *newnode;
     int adress = hashAdress(text);
 
-    if((newnode = hashFind(text))!=0){
-        return newnode;
+    if((newnode = hashFind(text, table))!=0){
+        return;
     }
 
     newnode = (HASH_NODE*) calloc(1,sizeof(HASH_NODE));
     newnode->text = (char*) calloc(strlen(text)+1, sizeof(char));
     strcpy(newnode->text, text);
-    newnode->next = Table[adress];
-    Table[adress] = newnode;
-    return newnode;
-}
+    newnode->data = data;
+    newnode->nature = idNature;
+    newnode->next = table[adress];
 
-void hashPrint(){
+    table[adress] = newnode;
+}
+void hashPrint(HASH_NODE* table){
     int i;
     HASH_NODE *node;
     
     for(i=0; i<HASH_SIZE;++i){
-        for(node = Table[i]; node; node = node->next){
+        for(node = &table[i]; node; node = node->next){
             printf("Table[%d] has %s\n", i, node->text);
         }
     }
-}#define HASH_SIZE 997
+}
+
+//Funções da pilha
+pilha* pilha_init(){
+    pilha* stack;
+
+    stack = (pilha*)calloc(1, sizeof(pilha));
+    stack->table = NULL;
+    stack->next = NULL;
+
+    return stack;
+}
+
+pilha* pilha_push(pilha* stack, HASH_NODE** table){
+    pilha* newstack;
+
+    newstack = (pilha*)calloc(1,sizeof(pilha));
+
+    newstack->next = stack;
+    newstack->table = table;
+
+    return newstack;
+    
+}
+
+pilha* pilha_pop(pilha* stack){
+    pilha* newstack;
+
+    if(stack == NULL){
+        return NULL;
+    }
+
+    newstack = stack->next;
+    free(stack);
+
+    return newstack;
+}
+/*
+
+
+
+
+
 
 char* getTextHash(HASH_NODE *node){
     return node->text;

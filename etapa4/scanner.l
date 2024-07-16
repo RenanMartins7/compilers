@@ -8,6 +8,7 @@
 /*Declarations and inclusion in C*/
 %{
 #include "parser.tab.h"
+#include "hash.h"
 %}
 
 

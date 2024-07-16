@@ -74,7 +74,9 @@ int yylex(void);
 void yyerror (char const *mensagem);
 extern int yylineno;
 #include <stdio.h>
+#include "hash.h"
 extern void *arvore;
+pilha* stack;
 
 
 
@@ -87,7 +89,7 @@ strdup a partir de yytext) para todos os tipos de tokens.
 
 
 
-#line 91 "parser.tab.c"
+#line 93 "parser.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -570,14 +572,14 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,   105,   105,   108,   109,   110,   122,   124,   125,   134,
-     135,   136,   151,   164,   165,   167,   168,   186,   188,   190,
-     205,   206,   207,   208,   209,   210,   211,   221,   223,   224,
-     232,   240,   248,   252,   253,   256,   257,   266,   273,   274,
-     282,   296,   298,   299,   301,   302,   304,   305,   306,   308,
-     309,   310,   311,   312,   314,   315,   316,   318,   319,   320,
-     321,   323,   324,   325,   328,   329,   330,   331,   332,   333,
-     334
+       0,   101,   101,   106,   107,   108,   118,   122,   123,   132,
+     133,   134,   149,   162,   163,   165,   166,   184,   186,   188,
+     203,   204,   205,   206,   207,   208,   209,   219,   221,   222,
+     230,   238,   246,   250,   251,   254,   255,   264,   271,   272,
+     280,   294,   296,   297,   299,   300,   302,   303,   304,   306,
+     307,   308,   309,   310,   312,   313,   314,   316,   317,   318,
+     319,   321,   322,   323,   326,   327,   328,   329,   330,   331,
+     332
 };
 #endif
 
@@ -1495,352 +1497,362 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* raizPrograma: programa  */
-#line 105 "parser.y"
-                       {arvore = (yyval.arvore);}
-#line 1501 "parser.tab.c"
+#line 101 "parser.y"
+                                                                {stack = pilha_init();
+											stack = pilha_push(stack, initMe());
+											arvore = (yyval.arvore);}
+#line 1505 "parser.tab.c"
     break;
 
   case 3: /* programa: declaracao_global programa  */
-#line 108 "parser.y"
+#line 106 "parser.y"
                                     {(yyval.arvore) = (yyvsp[0].arvore);}
-#line 1507 "parser.tab.c"
+#line 1511 "parser.tab.c"
     break;
 
   case 4: /* programa: declaracao_funcao programa  */
-#line 109 "parser.y"
+#line 107 "parser.y"
                                             {ast_add_child((yyvsp[-1].arvore), (yyvsp[0].arvore));}
-#line 1513 "parser.tab.c"
+#line 1517 "parser.tab.c"
     break;
 
   case 5: /* programa: %empty  */
-#line 110 "parser.y"
+#line 108 "parser.y"
                                                                         {(yyval.arvore) = NULL;}
-#line 1519 "parser.tab.c"
+#line 1523 "parser.tab.c"
     break;
 
-  case 12: /* declaracao_funcao: '(' parametros_dec_funcao ')' TK_OC_OR tipo '/' TK_IDENTIFICADOR bloco_de_comandos  */
-#line 151 "parser.y"
-                                                                                                      {(yyval.arvore) = ast_add_child(ast_new((yyvsp[-1].valor).token_value), (yyvsp[0].arvore));}
-#line 1525 "parser.tab.c"
-    break;
-
-  case 17: /* bloco_de_comandos: '{' lista_de_comandos '}'  */
-#line 186 "parser.y"
-                                             {(yyval.arvore) = (yyvsp[-1].arvore);}
+  case 6: /* declaracao_global: tipo TK_IDENTIFICADOR lista_variaveis_globais ','  */
+#line 118 "parser.y"
+                                                                    {
+																	;
+																	}
 #line 1531 "parser.tab.c"
     break;
 
+  case 12: /* declaracao_funcao: '(' parametros_dec_funcao ')' TK_OC_OR tipo '/' TK_IDENTIFICADOR bloco_de_comandos  */
+#line 149 "parser.y"
+                                                                                                      {(yyval.arvore) = ast_add_child(ast_new((yyvsp[-1].valor).token_value), (yyvsp[0].arvore));}
+#line 1537 "parser.tab.c"
+    break;
+
+  case 17: /* bloco_de_comandos: '{' lista_de_comandos '}'  */
+#line 184 "parser.y"
+                                             {(yyval.arvore) = (yyvsp[-1].arvore);}
+#line 1543 "parser.tab.c"
+    break;
+
   case 18: /* lista_de_comandos: comando_simples ',' lista_de_comandos  */
-#line 188 "parser.y"
+#line 186 "parser.y"
                                                                 {if((yyvsp[-2].arvore) == NULL)(yyval.arvore) = (yyvsp[0].arvore);
 															else (yyval.arvore) = ast_add_child((yyvsp[-2].arvore), (yyvsp[0].arvore));}
-#line 1538 "parser.tab.c"
-    break;
-
-  case 19: /* lista_de_comandos: %empty  */
-#line 190 "parser.y"
-                                                                                                                        {(yyval.arvore) = NULL;}
-#line 1544 "parser.tab.c"
-    break;
-
-  case 20: /* comando_simples: declaracao_variavel  */
-#line 205 "parser.y"
-                                        {(yyval.arvore) = NULL;}
 #line 1550 "parser.tab.c"
     break;
 
-  case 21: /* comando_simples: atribuicao_variavel  */
-#line 206 "parser.y"
-                                                        {(yyval.arvore) = (yyvsp[0].arvore);}
+  case 19: /* lista_de_comandos: %empty  */
+#line 188 "parser.y"
+                                                                                                                        {(yyval.arvore) = NULL;}
 #line 1556 "parser.tab.c"
     break;
 
-  case 22: /* comando_simples: chamada_funcao  */
-#line 207 "parser.y"
-                                                                {(yyval.arvore) = (yyvsp[0].arvore);}
+  case 20: /* comando_simples: declaracao_variavel  */
+#line 203 "parser.y"
+                                        {(yyval.arvore) = NULL;}
 #line 1562 "parser.tab.c"
     break;
 
-  case 23: /* comando_simples: comando_return  */
-#line 208 "parser.y"
-                                                                {(yyval.arvore) = (yyvsp[0].arvore);}
+  case 21: /* comando_simples: atribuicao_variavel  */
+#line 204 "parser.y"
+                                                        {(yyval.arvore) = (yyvsp[0].arvore);}
 #line 1568 "parser.tab.c"
     break;
 
-  case 24: /* comando_simples: comando_condicional  */
-#line 209 "parser.y"
-                                                        {(yyval.arvore) = (yyvsp[0].arvore);}
+  case 22: /* comando_simples: chamada_funcao  */
+#line 205 "parser.y"
+                                                                {(yyval.arvore) = (yyvsp[0].arvore);}
 #line 1574 "parser.tab.c"
     break;
 
-  case 25: /* comando_simples: comando_while  */
-#line 210 "parser.y"
+  case 23: /* comando_simples: comando_return  */
+#line 206 "parser.y"
                                                                 {(yyval.arvore) = (yyvsp[0].arvore);}
 #line 1580 "parser.tab.c"
     break;
 
-  case 26: /* comando_simples: bloco_de_comandos  */
-#line 211 "parser.y"
-                                                                {(yyval.arvore) = (yyvsp[0].arvore);}
+  case 24: /* comando_simples: comando_condicional  */
+#line 207 "parser.y"
+                                                        {(yyval.arvore) = (yyvsp[0].arvore);}
 #line 1586 "parser.tab.c"
     break;
 
+  case 25: /* comando_simples: comando_while  */
+#line 208 "parser.y"
+                                                                {(yyval.arvore) = (yyvsp[0].arvore);}
+#line 1592 "parser.tab.c"
+    break;
+
+  case 26: /* comando_simples: bloco_de_comandos  */
+#line 209 "parser.y"
+                                                                {(yyval.arvore) = (yyvsp[0].arvore);}
+#line 1598 "parser.tab.c"
+    break;
+
   case 30: /* atribuicao_variavel: TK_IDENTIFICADOR '=' expressao  */
-#line 232 "parser.y"
+#line 230 "parser.y"
                                                     {(yyval.arvore) = ast_new("=");
 													(yyval.arvore) = ast_add_child((yyval.arvore), ast_new((yyvsp[-2].valor).token_value));
 													(yyval.arvore) = ast_add_child((yyval.arvore), (yyvsp[0].arvore));}
-#line 1594 "parser.tab.c"
+#line 1606 "parser.tab.c"
     break;
 
   case 31: /* comando_return: TK_PR_RETURN expressao  */
-#line 240 "parser.y"
+#line 238 "parser.y"
                                        {(yyval.arvore) = ast_add_child(ast_new("return"), (yyvsp[0].arvore));}
-#line 1600 "parser.tab.c"
+#line 1612 "parser.tab.c"
     break;
 
   case 32: /* chamada_funcao: TK_IDENTIFICADOR '(' argumentos_chamada_funcao ')'  */
-#line 248 "parser.y"
+#line 246 "parser.y"
                                                                    {(yyval.arvore) = ast_add_child(ast_new("call "), (yyvsp[-1].arvore));
 																	ast_cat_label((yyval.arvore), (yyvsp[-3].valor).token_value);}
-#line 1607 "parser.tab.c"
-    break;
-
-  case 33: /* argumentos_chamada_funcao: expressao lista_argumentos_chamada_funcao  */
-#line 252 "parser.y"
-                                                                     {(yyval.arvore) = ast_add_child((yyvsp[-1].arvore),(yyvsp[0].arvore));}
-#line 1613 "parser.tab.c"
-    break;
-
-  case 34: /* argumentos_chamada_funcao: %empty  */
-#line 253 "parser.y"
-                                                          {(yyval.arvore) = NULL;}
 #line 1619 "parser.tab.c"
     break;
 
-  case 35: /* lista_argumentos_chamada_funcao: ';' expressao lista_argumentos_chamada_funcao  */
-#line 256 "parser.y"
-                                                                              {(yyval.arvore) = ast_add_child((yyvsp[-1].arvore),(yyvsp[0].arvore));}
+  case 33: /* argumentos_chamada_funcao: expressao lista_argumentos_chamada_funcao  */
+#line 250 "parser.y"
+                                                                     {(yyval.arvore) = ast_add_child((yyvsp[-1].arvore),(yyvsp[0].arvore));}
 #line 1625 "parser.tab.c"
     break;
 
-  case 36: /* lista_argumentos_chamada_funcao: %empty  */
-#line 257 "parser.y"
-                                                                 {(yyval.arvore) = NULL;}
+  case 34: /* argumentos_chamada_funcao: %empty  */
+#line 251 "parser.y"
+                                                          {(yyval.arvore) = NULL;}
 #line 1631 "parser.tab.c"
     break;
 
+  case 35: /* lista_argumentos_chamada_funcao: ';' expressao lista_argumentos_chamada_funcao  */
+#line 254 "parser.y"
+                                                                              {(yyval.arvore) = ast_add_child((yyvsp[-1].arvore),(yyvsp[0].arvore));}
+#line 1637 "parser.tab.c"
+    break;
+
+  case 36: /* lista_argumentos_chamada_funcao: %empty  */
+#line 255 "parser.y"
+                                                                 {(yyval.arvore) = NULL;}
+#line 1643 "parser.tab.c"
+    break;
+
   case 37: /* comando_condicional: TK_PR_IF '(' expressao ')' bloco_de_comandos comando_else  */
-#line 266 "parser.y"
+#line 264 "parser.y"
                                                                                 {(yyval.arvore) = ast_new("if");
 																				(yyval.arvore) = ast_add_child((yyval.arvore), (yyvsp[-3].arvore));
 																				(yyval.arvore) = ast_add_child((yyval.arvore), (yyvsp[-1].arvore));
 																				(yyval.arvore) = ast_add_child((yyval.arvore), (yyvsp[0].arvore));
 }
-#line 1641 "parser.tab.c"
-    break;
-
-  case 38: /* comando_else: TK_PR_ELSE bloco_de_comandos  */
-#line 273 "parser.y"
-                                                {(yyval.arvore) = (yyvsp[0].arvore);}
-#line 1647 "parser.tab.c"
-    break;
-
-  case 39: /* comando_else: %empty  */
-#line 274 "parser.y"
-                                                                                        {(yyval.arvore) = NULL;}
 #line 1653 "parser.tab.c"
     break;
 
+  case 38: /* comando_else: TK_PR_ELSE bloco_de_comandos  */
+#line 271 "parser.y"
+                                                {(yyval.arvore) = (yyvsp[0].arvore);}
+#line 1659 "parser.tab.c"
+    break;
+
+  case 39: /* comando_else: %empty  */
+#line 272 "parser.y"
+                                                                                        {(yyval.arvore) = NULL;}
+#line 1665 "parser.tab.c"
+    break;
+
   case 40: /* comando_while: TK_PR_WHILE '(' expressao ')' bloco_de_comandos  */
-#line 282 "parser.y"
+#line 280 "parser.y"
                                                                 {(yyval.arvore) = ast_new("while");
 																(yyval.arvore) = ast_add_child(ast_add_child((yyval.arvore), (yyvsp[-2].arvore)), (yyvsp[0].arvore));}
-#line 1660 "parser.tab.c"
-    break;
-
-  case 41: /* expressao: expressao_or  */
-#line 296 "parser.y"
-                                                                                                {(yyval.arvore) = (yyvsp[0].arvore);}
-#line 1666 "parser.tab.c"
-    break;
-
-  case 42: /* expressao_or: expressao_or TK_OC_OR expressao_and  */
-#line 298 "parser.y"
-                                                                        {(yyval.arvore) = ast_add_child(ast_add_child(ast_new("|"), (yyvsp[-2].arvore)),(yyvsp[0].arvore));}
 #line 1672 "parser.tab.c"
     break;
 
-  case 43: /* expressao_or: expressao_and  */
-#line 299 "parser.y"
-                                                                                                        {(yyval.arvore) = (yyvsp[0].arvore);}
+  case 41: /* expressao: expressao_or  */
+#line 294 "parser.y"
+                                                                                                {(yyval.arvore) = (yyvsp[0].arvore);}
 #line 1678 "parser.tab.c"
     break;
 
-  case 44: /* expressao_and: expressao_and TK_OC_AND expressao_eq_ne  */
-#line 301 "parser.y"
-                                                                {(yyval.arvore) = ast_add_child(ast_add_child(ast_new("&"), (yyvsp[-2].arvore)),(yyvsp[0].arvore));}
+  case 42: /* expressao_or: expressao_or TK_OC_OR expressao_and  */
+#line 296 "parser.y"
+                                                                        {(yyval.arvore) = ast_add_child(ast_add_child(ast_new("|"), (yyvsp[-2].arvore)),(yyvsp[0].arvore));}
 #line 1684 "parser.tab.c"
     break;
 
-  case 45: /* expressao_and: expressao_eq_ne  */
-#line 302 "parser.y"
+  case 43: /* expressao_or: expressao_and  */
+#line 297 "parser.y"
                                                                                                         {(yyval.arvore) = (yyvsp[0].arvore);}
 #line 1690 "parser.tab.c"
     break;
 
-  case 46: /* expressao_eq_ne: expressao_eq_ne TK_OC_EQ expressao_comparativa  */
-#line 304 "parser.y"
-                                                                        {(yyval.arvore) = ast_add_child(ast_add_child(ast_new("=="), (yyvsp[-2].arvore)),(yyvsp[0].arvore));}
+  case 44: /* expressao_and: expressao_and TK_OC_AND expressao_eq_ne  */
+#line 299 "parser.y"
+                                                                {(yyval.arvore) = ast_add_child(ast_add_child(ast_new("&"), (yyvsp[-2].arvore)),(yyvsp[0].arvore));}
 #line 1696 "parser.tab.c"
     break;
 
-  case 47: /* expressao_eq_ne: expressao_eq_ne TK_OC_NE expressao_comparativa  */
-#line 305 "parser.y"
-                                                                                        {(yyval.arvore) = ast_add_child(ast_add_child(ast_new("!="), (yyvsp[-2].arvore)),(yyvsp[0].arvore));}
+  case 45: /* expressao_and: expressao_eq_ne  */
+#line 300 "parser.y"
+                                                                                                        {(yyval.arvore) = (yyvsp[0].arvore);}
 #line 1702 "parser.tab.c"
     break;
 
-  case 48: /* expressao_eq_ne: expressao_comparativa  */
-#line 306 "parser.y"
-                                                                                                                {(yyval.arvore) = (yyvsp[0].arvore);}
+  case 46: /* expressao_eq_ne: expressao_eq_ne TK_OC_EQ expressao_comparativa  */
+#line 302 "parser.y"
+                                                                        {(yyval.arvore) = ast_add_child(ast_add_child(ast_new("=="), (yyvsp[-2].arvore)),(yyvsp[0].arvore));}
 #line 1708 "parser.tab.c"
     break;
 
-  case 49: /* expressao_comparativa: expressao_comparativa TK_OC_LE expressao_soma_sub  */
-#line 308 "parser.y"
-                                                                         {(yyval.arvore) = ast_add_child(ast_add_child(ast_new("<="), (yyvsp[-2].arvore)),(yyvsp[0].arvore));}
+  case 47: /* expressao_eq_ne: expressao_eq_ne TK_OC_NE expressao_comparativa  */
+#line 303 "parser.y"
+                                                                                        {(yyval.arvore) = ast_add_child(ast_add_child(ast_new("!="), (yyvsp[-2].arvore)),(yyvsp[0].arvore));}
 #line 1714 "parser.tab.c"
     break;
 
-  case 50: /* expressao_comparativa: expressao_comparativa TK_OC_GE expressao_soma_sub  */
-#line 309 "parser.y"
-                                                                                             {(yyval.arvore) = ast_add_child(ast_add_child(ast_new(">="), (yyvsp[-2].arvore)),(yyvsp[0].arvore));}
+  case 48: /* expressao_eq_ne: expressao_comparativa  */
+#line 304 "parser.y"
+                                                                                                                {(yyval.arvore) = (yyvsp[0].arvore);}
 #line 1720 "parser.tab.c"
     break;
 
-  case 51: /* expressao_comparativa: expressao_comparativa '>' expressao_soma_sub  */
-#line 310 "parser.y"
-                                                                                                 {(yyval.arvore) = ast_add_child(ast_add_child(ast_new(">"), (yyvsp[-2].arvore)),(yyvsp[0].arvore));}
+  case 49: /* expressao_comparativa: expressao_comparativa TK_OC_LE expressao_soma_sub  */
+#line 306 "parser.y"
+                                                                         {(yyval.arvore) = ast_add_child(ast_add_child(ast_new("<="), (yyvsp[-2].arvore)),(yyvsp[0].arvore));}
 #line 1726 "parser.tab.c"
     break;
 
-  case 52: /* expressao_comparativa: expressao_comparativa '<' expressao_soma_sub  */
-#line 311 "parser.y"
-                                                                                                 {(yyval.arvore) = ast_add_child(ast_add_child(ast_new("<"), (yyvsp[-2].arvore)),(yyvsp[0].arvore));}
+  case 50: /* expressao_comparativa: expressao_comparativa TK_OC_GE expressao_soma_sub  */
+#line 307 "parser.y"
+                                                                                             {(yyval.arvore) = ast_add_child(ast_add_child(ast_new(">="), (yyvsp[-2].arvore)),(yyvsp[0].arvore));}
 #line 1732 "parser.tab.c"
     break;
 
-  case 53: /* expressao_comparativa: expressao_soma_sub  */
-#line 312 "parser.y"
-                                                                                                                         {(yyval.arvore) = (yyvsp[0].arvore);}
+  case 51: /* expressao_comparativa: expressao_comparativa '>' expressao_soma_sub  */
+#line 308 "parser.y"
+                                                                                                 {(yyval.arvore) = ast_add_child(ast_add_child(ast_new(">"), (yyvsp[-2].arvore)),(yyvsp[0].arvore));}
 #line 1738 "parser.tab.c"
     break;
 
-  case 54: /* expressao_soma_sub: expressao_soma_sub '+' expressao_div_mult  */
-#line 314 "parser.y"
-                                                                {(yyval.arvore) = ast_add_child(ast_add_child(ast_new("+"), (yyvsp[-2].arvore)),(yyvsp[0].arvore));}
+  case 52: /* expressao_comparativa: expressao_comparativa '<' expressao_soma_sub  */
+#line 309 "parser.y"
+                                                                                                 {(yyval.arvore) = ast_add_child(ast_add_child(ast_new("<"), (yyvsp[-2].arvore)),(yyvsp[0].arvore));}
 #line 1744 "parser.tab.c"
     break;
 
-  case 55: /* expressao_soma_sub: expressao_soma_sub '-' expressao_div_mult  */
-#line 315 "parser.y"
-                                                                                        {(yyval.arvore) = ast_add_child(ast_add_child(ast_new("-"), (yyvsp[-2].arvore)),(yyvsp[0].arvore));}
+  case 53: /* expressao_comparativa: expressao_soma_sub  */
+#line 310 "parser.y"
+                                                                                                                         {(yyval.arvore) = (yyvsp[0].arvore);}
 #line 1750 "parser.tab.c"
     break;
 
-  case 56: /* expressao_soma_sub: expressao_div_mult  */
-#line 316 "parser.y"
-                                                                                                        {(yyval.arvore) = (yyvsp[0].arvore);}
+  case 54: /* expressao_soma_sub: expressao_soma_sub '+' expressao_div_mult  */
+#line 312 "parser.y"
+                                                                {(yyval.arvore) = ast_add_child(ast_add_child(ast_new("+"), (yyvsp[-2].arvore)),(yyvsp[0].arvore));}
 #line 1756 "parser.tab.c"
     break;
 
-  case 57: /* expressao_div_mult: expressao_div_mult '*' expressao_unaria  */
-#line 318 "parser.y"
-                                                                        {(yyval.arvore) = ast_add_child(ast_add_child(ast_new("*"), (yyvsp[-2].arvore)),(yyvsp[0].arvore));}
+  case 55: /* expressao_soma_sub: expressao_soma_sub '-' expressao_div_mult  */
+#line 313 "parser.y"
+                                                                                        {(yyval.arvore) = ast_add_child(ast_add_child(ast_new("-"), (yyvsp[-2].arvore)),(yyvsp[0].arvore));}
 #line 1762 "parser.tab.c"
     break;
 
-  case 58: /* expressao_div_mult: expressao_div_mult '/' expressao_unaria  */
-#line 319 "parser.y"
-                                                                                        {(yyval.arvore) = ast_add_child(ast_add_child(ast_new("/"), (yyvsp[-2].arvore)),(yyvsp[0].arvore));}
+  case 56: /* expressao_soma_sub: expressao_div_mult  */
+#line 314 "parser.y"
+                                                                                                        {(yyval.arvore) = (yyvsp[0].arvore);}
 #line 1768 "parser.tab.c"
     break;
 
-  case 59: /* expressao_div_mult: expressao_div_mult '%' expressao_unaria  */
-#line 320 "parser.y"
-                                                                                        {(yyval.arvore) = ast_add_child(ast_add_child(ast_new("%"), (yyvsp[-2].arvore)),(yyvsp[0].arvore));}
+  case 57: /* expressao_div_mult: expressao_div_mult '*' expressao_unaria  */
+#line 316 "parser.y"
+                                                                        {(yyval.arvore) = ast_add_child(ast_add_child(ast_new("*"), (yyvsp[-2].arvore)),(yyvsp[0].arvore));}
 #line 1774 "parser.tab.c"
     break;
 
-  case 60: /* expressao_div_mult: expressao_unaria  */
-#line 321 "parser.y"
-                                                                                                                {(yyval.arvore) = (yyvsp[0].arvore);}
+  case 58: /* expressao_div_mult: expressao_div_mult '/' expressao_unaria  */
+#line 317 "parser.y"
+                                                                                        {(yyval.arvore) = ast_add_child(ast_add_child(ast_new("/"), (yyvsp[-2].arvore)),(yyvsp[0].arvore));}
 #line 1780 "parser.tab.c"
     break;
 
-  case 61: /* expressao_unaria: '-' expressao_unaria  */
-#line 323 "parser.y"
-                                                {(yyval.arvore) = ast_add_child(ast_new("-"), (yyvsp[0].arvore));}
+  case 59: /* expressao_div_mult: expressao_div_mult '%' expressao_unaria  */
+#line 318 "parser.y"
+                                                                                        {(yyval.arvore) = ast_add_child(ast_add_child(ast_new("%"), (yyvsp[-2].arvore)),(yyvsp[0].arvore));}
 #line 1786 "parser.tab.c"
     break;
 
-  case 62: /* expressao_unaria: '!' expressao_unaria  */
-#line 324 "parser.y"
-                                                                {(yyval.arvore) = ast_add_child(ast_new("!"), (yyvsp[0].arvore));}
+  case 60: /* expressao_div_mult: expressao_unaria  */
+#line 319 "parser.y"
+                                                                                                                {(yyval.arvore) = (yyvsp[0].arvore);}
 #line 1792 "parser.tab.c"
     break;
 
-  case 63: /* expressao_unaria: valor  */
-#line 325 "parser.y"
-                                                                                {(yyval.arvore) = (yyvsp[0].arvore);}
+  case 61: /* expressao_unaria: '-' expressao_unaria  */
+#line 321 "parser.y"
+                                                {(yyval.arvore) = ast_add_child(ast_new("-"), (yyvsp[0].arvore));}
 #line 1798 "parser.tab.c"
     break;
 
-  case 64: /* valor: TK_IDENTIFICADOR  */
-#line 328 "parser.y"
-                        {(yyval.arvore) = ast_new((yyvsp[0].valor).token_value);}
+  case 62: /* expressao_unaria: '!' expressao_unaria  */
+#line 322 "parser.y"
+                                                                {(yyval.arvore) = ast_add_child(ast_new("!"), (yyvsp[0].arvore));}
 #line 1804 "parser.tab.c"
     break;
 
-  case 65: /* valor: TK_LIT_FLOAT  */
-#line 329 "parser.y"
-                                {(yyval.arvore) = ast_new((yyvsp[0].valor).token_value);}
+  case 63: /* expressao_unaria: valor  */
+#line 323 "parser.y"
+                                                                                {(yyval.arvore) = (yyvsp[0].arvore);}
 #line 1810 "parser.tab.c"
     break;
 
-  case 66: /* valor: TK_LIT_INT  */
-#line 330 "parser.y"
-                                {(yyval.arvore) = ast_new((yyvsp[0].valor).token_value);}
+  case 64: /* valor: TK_IDENTIFICADOR  */
+#line 326 "parser.y"
+                        {(yyval.arvore) = ast_new((yyvsp[0].valor).token_value);}
 #line 1816 "parser.tab.c"
     break;
 
-  case 67: /* valor: TK_LIT_FALSE  */
-#line 331 "parser.y"
+  case 65: /* valor: TK_LIT_FLOAT  */
+#line 327 "parser.y"
                                 {(yyval.arvore) = ast_new((yyvsp[0].valor).token_value);}
 #line 1822 "parser.tab.c"
     break;
 
-  case 68: /* valor: TK_LIT_TRUE  */
-#line 332 "parser.y"
+  case 66: /* valor: TK_LIT_INT  */
+#line 328 "parser.y"
                                 {(yyval.arvore) = ast_new((yyvsp[0].valor).token_value);}
 #line 1828 "parser.tab.c"
     break;
 
-  case 69: /* valor: chamada_funcao  */
-#line 333 "parser.y"
-                                {(yyval.arvore) = (yyvsp[0].arvore);}
+  case 67: /* valor: TK_LIT_FALSE  */
+#line 329 "parser.y"
+                                {(yyval.arvore) = ast_new((yyvsp[0].valor).token_value);}
 #line 1834 "parser.tab.c"
     break;
 
-  case 70: /* valor: '(' expressao ')'  */
-#line 334 "parser.y"
-                            {(yyval.arvore) = (yyvsp[-1].arvore);}
+  case 68: /* valor: TK_LIT_TRUE  */
+#line 330 "parser.y"
+                                {(yyval.arvore) = ast_new((yyvsp[0].valor).token_value);}
 #line 1840 "parser.tab.c"
     break;
 
+  case 69: /* valor: chamada_funcao  */
+#line 331 "parser.y"
+                                {(yyval.arvore) = (yyvsp[0].arvore);}
+#line 1846 "parser.tab.c"
+    break;
 
-#line 1844 "parser.tab.c"
+  case 70: /* valor: '(' expressao ')'  */
+#line 332 "parser.y"
+                            {(yyval.arvore) = (yyvsp[-1].arvore);}
+#line 1852 "parser.tab.c"
+    break;
+
+
+#line 1856 "parser.tab.c"
 
       default: break;
     }
@@ -2064,7 +2076,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 337 "parser.y"
+#line 335 "parser.y"
 
 
 
