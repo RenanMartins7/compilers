@@ -17,6 +17,7 @@ ast *ast_new(char* label){
     tree->label = strdup(label);
     tree->number_of_children = 0;
     tree->children = NULL;
+    tree->astType = 0;
 
     return tree;
 }

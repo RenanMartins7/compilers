@@ -39,7 +39,7 @@ HASH_NODE *hashFind(char *text, HASH_NODE** table){
     return 0;
 }
 
-void hashInsert(char *text, HASH_NODE** table, int idNature, valor_lexico data){
+void hashInsert(char *text, HASH_NODE** table, int idNature, valor_lexico data, int type){
     HASH_NODE *newnode;
     int adress = hashAdress(text);
 
@@ -53,18 +53,97 @@ void hashInsert(char *text, HASH_NODE** table, int idNature, valor_lexico data){
     newnode->data = data;
     newnode->nature = idNature;
     newnode->next = table[adress];
+    newnode-> astType = type;
 
     table[adress] = newnode;
 }
-void hashPrint(HASH_NODE* table){
+void hashPrint(HASH_NODE** table){
     int i;
     HASH_NODE *node;
     
     for(i=0; i<HASH_SIZE;++i){
-        for(node = &table[i]; node; node = node->next){
-            printf("Table[%d] has %s\n", i, node->text);
+        for(node = table[i]; node; node = node->next){
+            printf("Table[%d] has %s with type %d\n", i, node->text, node->astType);
         }
     }
+}
+
+
+int hashSearchType(char *text, pilha* scope){
+    if(scope == NULL) return 0;
+
+    HASH_NODE* node;
+
+    node = hashFind(text, scope->table);
+    if(node == NULL) return hashSearchType(text, scope->next);
+
+    return node->astType;
+}
+
+void verifyUndeclared(valor_lexico token,ast* arvore, int line, pilha* stack){
+    int i = hashSearchType(token.token_value, stack);
+	if(i == 0){
+		printf("\n Variável %s nao declarada na linha %d\n", token.token_value, line);
+		exit(ERR_UNDECLARED);
+	}
+	else{
+		arvore->astType = i;
+	}
+}
+
+void verifyDeclared(valor_lexico token, int line, pilha* scope){
+    HASH_NODE* node;
+    node = hashFind(token.token_value, scope->table);
+
+    if(node != NULL){
+        printf("\n Variável %s na linha %d ja foi declarada\n", token.token_value, line);
+        exit(ERR_DECLARED);
+    }
+}
+
+void verifyIdentifier(pilha* scope, char* text, int line){
+
+    if(scope == NULL){
+        printf("\nError one verifyIdentifier, null scope");
+        return;
+    }
+
+    HASH_NODE* node;
+
+    node = hashFind(text, scope->table);
+    if(node == NULL) verifyIdentifier(scope->next, text, line);
+
+    else if(node->nature == ID_FUNCTION){
+        printf("\nIdentificador de função %s utilizado como variável na linha %d", text, line);
+        exit(ERR_FUNCTION);
+    }
+
+
+}
+
+void verifyFunction(pilha* scope, char* text, int line){
+
+    
+    if(scope == NULL){
+        printf("\nError one verifyFunction, null scope");
+        return;
+    }
+
+    HASH_NODE* node;
+
+    node = hashFind(text, scope->table);
+    
+    if(node == NULL) verifyFunction(scope->next, text, line);
+
+    
+    else if(node->nature == ID_IDENTIFIER){
+        
+        printf("\nIdentificador de variável %s utilizado como função na linha %d", text, line);
+        exit(ERR_VARIABLE);
+    }
+    
+
+
 }
 
 //Funções da pilha
@@ -78,29 +157,37 @@ pilha* pilha_init(){
     return stack;
 }
 
-pilha* pilha_push(pilha* stack, HASH_NODE** table){
+pilha* pilha_push(pilha* scope, HASH_NODE** table){
     pilha* newstack;
 
     newstack = (pilha*)calloc(1,sizeof(pilha));
 
-    newstack->next = stack;
+    newstack->next = scope;
     newstack->table = table;
 
     return newstack;
     
 }
 
-pilha* pilha_pop(pilha* stack){
+pilha* pilha_pop(pilha* scope){
     pilha* newstack;
 
-    if(stack == NULL){
+    if(scope == NULL){
         return NULL;
     }
 
-    newstack = stack->next;
-    free(stack);
+    newstack = scope->next;
+    free(scope);
 
     return newstack;
+}
+
+
+void pilha_free(pilha* scope){
+    if(scope == NULL) return ;
+
+    pilha_free(scope->next);
+    free(scope);
 }
 /*
 

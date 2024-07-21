@@ -11,7 +11,8 @@ extern int yylineno;
 #include <stdio.h>
 #include "hash.h"
 extern void *arvore;
-pilha* stack;
+pilha* stack = NULL;
+int flagBloco = 0;
 
 
 
@@ -37,6 +38,7 @@ parser.y. */
 %union {
   valor_lexico valor;
   ast *arvore;
+  int indexType;
 }
 %token TK_PR_INT
 %token TK_PR_FLOAT
@@ -57,6 +59,7 @@ parser.y. */
 %token<valor> TK_LIT_FALSE
 %token<valor> TK_LIT_TRUE
 %token TK_ERRO
+
 /*
 
 
@@ -86,11 +89,19 @@ parser.y. */
 %type<arvore> expressao_unaria
 %type<arvore> chamada_funcao
 %type<arvore> valor
+%type<indexType> tipo 
+%type<indexType> lista_variaveis_globais
+%type<indexType> lista_declaracao_variaveis
+%type<indexType> declaracao_variavel
 
 
 
 %%
 
+
+
+
+raizInicializacao:{stack = pilha_push(stack, initMe());}  raizPrograma 
 /*
 Um programa na linguagem é composto por dois
 elementos, todos opcionais: um conjunto de de-
@@ -98,9 +109,13 @@ clarações de variáveis globais e um conjunto de
 funções. Esses elementos podem estar intercala-
 dos e em qualquer ordem.
 */
-raizPrograma: programa 						{stack = pilha_init();
-											 stack = pilha_push(stack, initMe());
-											 arvore = $$;}
+raizPrograma: programa 						
+{										 
+	arvore = $$;
+	hashPrint(stack->table);
+		
+	pilha_free(stack);
+}
 
 
 programa: declaracao_global programa{$$ = $2;}
@@ -115,12 +130,26 @@ As variáveis globais são declarad    tree->astType = astType; separadas por
 ponto-e-vírgula.
 */
 
-declaracao_global: tipo TK_IDENTIFICADOR lista_variaveis_globais ','{
-																	 ;
-																	}
+declaracao_global: tipo TK_IDENTIFICADOR
+{
+	verifyDeclared($2, yylineno, stack);
+	hashInsert($2.token_value, stack->table, ID_IDENTIFIER, $2, $1);
+}
+ lista_variaveis_globais ','
+ {
+		$4 = $1;
+ }
+
+
 
 lista_variaveis_globais: ';' TK_IDENTIFICADOR lista_variaveis_globais
-						| 
+{
+	$3 = $$;
+	verifyDeclared($2, yylineno, stack);
+	hashInsert($2.token_value, stack->table, ID_IDENTIFIER, $2, $$);
+
+}
+						| {$$ = 0;}
 
 
 
@@ -129,9 +158,9 @@ lista_variaveis_globais: ';' TK_IDENTIFICADOR lista_variaveis_globais
 /*
 O tipo pode ser int, float e bool.
 */
-tipo: TK_PR_BOOL
-	| TK_PR_FLOAT
-	| TK_PR_INT
+tipo: TK_PR_BOOL {$$ = AST_BOOL;}
+	| TK_PR_FLOAT{$$ = AST_FLOAT;}
+	| TK_PR_INT{$$ = AST_INT;}
 
 
 
@@ -146,7 +175,22 @@ de retorno seguido da barra e o nome da função.
 Tal tipo pode ser int, float e bool. O corpo da função é
 um bloco de comandos.
 */
-declaracao_funcao: '(' parametros_dec_funcao ')' TK_OC_OR tipo '/' TK_IDENTIFICADOR bloco_de_comandos {$$ = ast_add_child(ast_new($7.token_value), $8);}
+declaracao_funcao:'(' 
+{
+	stack = pilha_push(stack, initMe());
+	flagBloco = 1;
+}
+					parametros_dec_funcao ')' TK_OC_OR tipo '/' TK_IDENTIFICADOR
+
+{
+	verifyDeclared($8, yylineno, stack);
+	hashInsert($8.token_value, stack->next->table, ID_FUNCTION, $8, $6);
+}
+ 					bloco_de_comandos 
+
+{
+	$$ = ast_add_child(ast_new($8.token_value), $10);
+}
 
 
 
@@ -159,10 +203,22 @@ por zero ou mais parâmetros de entrada, separa-
 dos por ponto-e-vírgula. Cada parâmetro é defi-
 nido pelo seu tipo e nome.
 */
-parametros_dec_funcao: tipo TK_IDENTIFICADOR lista_parametros_dec_funcao
+parametros_dec_funcao: tipo TK_IDENTIFICADOR
+{
+	verifyDeclared($2, yylineno, stack);
+	hashInsert($2.token_value, stack->table,ID_IDENTIFIER, $2, $1);
+}
+ lista_parametros_dec_funcao
+
 					|
 
-lista_parametros_dec_funcao: ';' tipo TK_IDENTIFICADOR lista_parametros_dec_funcao
+lista_parametros_dec_funcao: ';' tipo TK_IDENTIFICADOR 
+{
+	verifyDeclared($3, yylineno, stack);
+	hashInsert($3.token_value, stack->table,ID_IDENTIFIER, $3, $2);
+}
+lista_parametros_dec_funcao
+
 							| 
 
 
@@ -181,7 +237,18 @@ mente, e pode ser utilizado em qualquer constru-
 
 */
 
-bloco_de_comandos: '{' lista_de_comandos '}' {$$ = $2;}
+bloco_de_comandos: '{'
+{
+	if(flagBloco == 0) stack = pilha_push(stack, initMe());
+	else flagBloco = 0;
+}
+ lista_de_comandos '}' 
+ {
+	$$ = $3;
+	hashPrint(stack->table);
+	stack = pilha_pop(stack);
+
+}
 
 lista_de_comandos: comando_simples ','  lista_de_comandos	{if($1 == NULL)$$ = $3;
 															else $$ = ast_add_child($1, $3);}
@@ -216,10 +283,23 @@ nos um nome de variável (identificador) separa-
 das por ponto-e-vírgula. Os tipos podem ser aque-
 les descritos na seção sobre variáveis globais.
 */
-declaracao_variavel: tipo TK_IDENTIFICADOR lista_declaracao_variaveis 
+declaracao_variavel: tipo TK_IDENTIFICADOR
+{
+	verifyDeclared($2, yylineno, stack);
+	hashInsert($2.token_value, stack->table, ID_IDENTIFIER, $2, $1);
+}
+ lista_declaracao_variaveis 
+ {
+	$4 = $1;
+ }
 
 lista_declaracao_variaveis: ';' TK_IDENTIFICADOR lista_declaracao_variaveis 
-							|
+{
+	$3 = $$;
+	verifyDeclared($2, yylineno, stack);
+	hashInsert($2.token_value, stack->table, ID_IDENTIFIER, $2, $$);
+}
+							|{$$= 0;}
 
 
 /*
@@ -227,9 +307,14 @@ Comando de Atribuição: O comando de atribui-
 ção consiste em um identificador seguido pelo ca-
 ractere de igualdade seguido por uma expressão.
 */
-atribuicao_variavel: TK_IDENTIFICADOR '=' expressao {$$ = ast_new("=");
-													$$ = ast_add_child($$, ast_new($1.token_value));
-													$$ = ast_add_child($$, $3);}
+atribuicao_variavel: TK_IDENTIFICADOR '=' expressao 
+{
+	$$ = ast_new("=");
+	$$ = ast_add_child($$, ast_new($1.token_value));
+	$$ = ast_add_child($$, $3);
+	verifyUndeclared($1,$$,yylineno,stack);
+	verifyIdentifier(stack, $1.token_value, yylineno);}
+	
 
 /*
 Comando de Retorno: Trata-se do token return
@@ -243,8 +328,14 @@ consiste no nome da função, seguida de argu-
 mentos entre parênteses separados por ponto-e-
 vírgula. Um argumento pode ser uma expressão.
 */
-chamada_funcao: TK_IDENTIFICADOR '(' argumentos_chamada_funcao ')' {$$ = ast_add_child(ast_new("call "), $3);
-																	ast_cat_label($$, $1.token_value);}
+chamada_funcao: TK_IDENTIFICADOR '(' argumentos_chamada_funcao ')' 
+{
+	$$ = ast_add_child(ast_new("call "), $3);
+	ast_cat_label($$, $1.token_value);
+	verifyUndeclared($1,$$,yylineno,stack);
+	verifyFunction(stack, $1.token_value, yylineno);
+
+}
 
 
 argumentos_chamada_funcao: expressao lista_argumentos_chamada_funcao {$$ = ast_add_child($1,$2);}
@@ -323,11 +414,15 @@ expressao_unaria: 	 '-' expressao_unaria	{$$ = ast_add_child(ast_new("-"), $2);}
 					| valor					{$$ = $1;}
 
 
-valor: TK_IDENTIFICADOR {$$ = ast_new($1.token_value);}
-	| TK_LIT_FLOAT		{$$ = ast_new($1.token_value);}
-	| TK_LIT_INT		{$$ = ast_new($1.token_value);}
-	| TK_LIT_FALSE		{$$ = ast_new($1.token_value);}
-	| TK_LIT_TRUE		{$$ = ast_new($1.token_value);}
+valor: TK_IDENTIFICADOR {
+	$$ = ast_new($1.token_value);
+	verifyIdentifier(stack, $1.token_value, yylineno);
+	verifyUndeclared($1,$$,yylineno,stack);
+}
+	| TK_LIT_FLOAT		{$$ = ast_new($1.token_value);$$->astType = AST_FLOAT;}
+	| TK_LIT_INT		{$$ = ast_new($1.token_value);$$->astType = AST_INT;}
+	| TK_LIT_FALSE		{$$ = ast_new($1.token_value);$$->astType = AST_BOOL;}
+	| TK_LIT_TRUE		{$$ = ast_new($1.token_value);$$->astType = AST_BOOL;}
 	| chamada_funcao	{$$ = $1;}
 	| '(' expressao ')' {$$ = $2;}
 

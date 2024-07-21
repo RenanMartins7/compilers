@@ -4,10 +4,19 @@
 #define AST_INT 69
 #define AST_FLOAT 70
 #define AST_BOOL 71
+#define ID_FUNCTION 72
+#define ID_IDENTIFIER 73
+
+#define ERR_UNDECLARED 10
+#define ERR_DECLARED 11
+#define ERR_VARIABLE 20
+#define ERR_FUNCTION 21
+
 
 
 typedef struct ast_tree{
     char *label;
+    int astType;
     int number_of_children;
     struct ast_tree **children;
 }ast;
