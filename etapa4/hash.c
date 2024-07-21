@@ -146,6 +146,13 @@ void verifyFunction(pilha* scope, char* text, int line){
 
 }
 
+int typeInference(int typeA, int typeB){
+    if(typeA == typeB) return typeA;
+    if(typeA == AST_FLOAT || typeB == AST_FLOAT) return AST_FLOAT;
+    if(typeA == AST_BOOL || typeB == AST_BOOL) return AST_BOOL;
+    return AST_INT;
+}
+
 //Funções da pilha
 pilha* pilha_init(){
     pilha* stack;

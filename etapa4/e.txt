@@ -1,6 +1,8 @@
 float a,
 
-(int a; int b) | int / main{
+
+
+(int a; int ba) | int / main{
 	
 	float sabrina,
 	while(2){
@@ -8,16 +10,22 @@ float a,
 	int c,
 	
 	},
+	{int a,{int a;b;c;d,},},
 	
+
+	//d = true,
+	
+	main = 2,
 
 	a = 2,
 	
-	a = sabrina,
+	a = sabrina + 5 - 5 * 14 + (false + true),
+	
 }
 
 (int alexandre; int b) | int / carlos{
 	
-	b = alexandre(),
+	b = false,
 	//int b,
 
 }

@@ -112,7 +112,7 @@ dos e em qualquer ordem.
 raizPrograma: programa 						
 {										 
 	arvore = $$;
-	hashPrint(stack->table);
+	//hashPrint(stack->table);
 		
 	pilha_free(stack);
 }
@@ -190,6 +190,7 @@ declaracao_funcao:'('
 
 {
 	$$ = ast_add_child(ast_new($8.token_value), $10);
+	$$->astType = $6;
 }
 
 
@@ -245,7 +246,7 @@ bloco_de_comandos: '{'
  lista_de_comandos '}' 
  {
 	$$ = $3;
-	hashPrint(stack->table);
+	//hashPrint(stack->table);
 	stack = pilha_pop(stack);
 
 }
@@ -313,14 +314,17 @@ atribuicao_variavel: TK_IDENTIFICADOR '=' expressao
 	$$ = ast_add_child($$, ast_new($1.token_value));
 	$$ = ast_add_child($$, $3);
 	verifyUndeclared($1,$$,yylineno,stack);
-	verifyIdentifier(stack, $1.token_value, yylineno);}
+	verifyIdentifier(stack, $1.token_value, yylineno);
+	$$->astType = hashSearchType($1.token_value, stack);
+	$$->children[0]->astType = hashSearchType($1.token_value, stack);}
 	
 
 /*
 Comando de Retorno: Trata-se do token return
 seguido de uma expressão.
 */
-comando_return: TK_PR_RETURN expressao {$$ = ast_add_child(ast_new("return"), $2);}
+comando_return: TK_PR_RETURN expressao {$$ = ast_add_child(ast_new("return"), $2);
+										$$->astType = $2->astType;}
 
 /*
 Chamada de Função: Uma chamada de função
@@ -334,6 +338,7 @@ chamada_funcao: TK_IDENTIFICADOR '(' argumentos_chamada_funcao ')'
 	ast_cat_label($$, $1.token_value);
 	verifyUndeclared($1,$$,yylineno,stack);
 	verifyFunction(stack, $1.token_value, yylineno);
+	$$->astType = hashSearchType($1.token_value, stack);
 
 }
 
@@ -384,33 +389,65 @@ ficadores, (b) literais e (c) chamada de função
 
 expressao: expressao_or 									{$$ = $1;}
 
-expressao_or: 		expressao_or TK_OC_OR expressao_and		{$$ = ast_add_child(ast_add_child(ast_new("|"), $1),$3);}
+
+expressao_or: 		expressao_or TK_OC_OR expressao_and		{$$ = ast_add_child(ast_add_child(ast_new("|"), $1),$3);
+															$$->astType = typeInference($1->astType, $3->astType);}
+
 					| expressao_and							{$$ = $1;}
 
-expressao_and: 		expressao_and TK_OC_AND expressao_eq_ne	{$$ = ast_add_child(ast_add_child(ast_new("&"), $1),$3);}
+
+expressao_and: 		expressao_and TK_OC_AND expressao_eq_ne	{$$ = ast_add_child(ast_add_child(ast_new("&"), $1),$3);
+															$$->astType = typeInference($1->astType, $3->astType);}
+
 					| expressao_eq_ne						{$$ = $1;}
 
-expressao_eq_ne: 	expressao_eq_ne TK_OC_EQ expressao_comparativa	{$$ = ast_add_child(ast_add_child(ast_new("=="), $1),$3);}
-					| expressao_eq_ne TK_OC_NE expressao_comparativa{$$ = ast_add_child(ast_add_child(ast_new("!="), $1),$3);}
+expressao_eq_ne: 	expressao_eq_ne TK_OC_EQ expressao_comparativa	{$$ = ast_add_child(ast_add_child(ast_new("=="), $1),$3);
+																	$$->astType = typeInference($1->astType, $3->astType);}
+
+					| expressao_eq_ne TK_OC_NE expressao_comparativa{$$ = ast_add_child(ast_add_child(ast_new("!="), $1),$3);
+																	$$->astType = typeInference($1->astType, $3->astType);}
+
 					| expressao_comparativa							{$$ = $1;}
 
-expressao_comparativa: expressao_comparativa TK_OC_LE expressao_soma_sub {$$ = ast_add_child(ast_add_child(ast_new("<="), $1),$3);}
-					| expressao_comparativa TK_OC_GE expressao_soma_sub  {$$ = ast_add_child(ast_add_child(ast_new(">="), $1),$3);}
-					| expressao_comparativa '>' expressao_soma_sub		 {$$ = ast_add_child(ast_add_child(ast_new(">"), $1),$3);}
-					| expressao_comparativa '<' expressao_soma_sub		 {$$ = ast_add_child(ast_add_child(ast_new("<"), $1),$3);}
+expressao_comparativa: expressao_comparativa TK_OC_LE expressao_soma_sub {$$ = ast_add_child(ast_add_child(ast_new("<="), $1),$3);
+																		$$->astType = typeInference($1->astType, $3->astType);}
+
+					| expressao_comparativa TK_OC_GE expressao_soma_sub  {$$ = ast_add_child(ast_add_child(ast_new(">="), $1),$3);
+																		$$->astType = typeInference($1->astType, $3->astType);}
+
+					| expressao_comparativa '>' expressao_soma_sub		 {$$ = ast_add_child(ast_add_child(ast_new(">"), $1),$3);
+																		$$->astType = typeInference($1->astType, $3->astType);}
+
+					| expressao_comparativa '<' expressao_soma_sub		 {$$ = ast_add_child(ast_add_child(ast_new("<"), $1),$3);
+																		$$->astType = typeInference($1->astType, $3->astType);}
+
 					| expressao_soma_sub								 {$$ = $1;}
 
-expressao_soma_sub: expressao_soma_sub '+' expressao_div_mult	{$$ = ast_add_child(ast_add_child(ast_new("+"), $1),$3);}
-					| expressao_soma_sub '-' expressao_div_mult	{$$ = ast_add_child(ast_add_child(ast_new("-"), $1),$3);}
+expressao_soma_sub: expressao_soma_sub '+' expressao_div_mult	{$$ = ast_add_child(ast_add_child(ast_new("+"), $1),$3);
+																$$->astType = typeInference($1->astType, $3->astType);}
+
+					| expressao_soma_sub '-' expressao_div_mult	{$$ = ast_add_child(ast_add_child(ast_new("-"), $1),$3);
+																$$->astType = typeInference($1->astType, $3->astType);}
+
 					| expressao_div_mult						{$$ = $1;}
 
-expressao_div_mult: expressao_div_mult '*' expressao_unaria		{$$ = ast_add_child(ast_add_child(ast_new("*"), $1),$3);}
-					| expressao_div_mult '/' expressao_unaria	{$$ = ast_add_child(ast_add_child(ast_new("/"), $1),$3);}
-					| expressao_div_mult '%' expressao_unaria	{$$ = ast_add_child(ast_add_child(ast_new("%"), $1),$3);}
+expressao_div_mult: expressao_div_mult '*' expressao_unaria		{$$ = ast_add_child(ast_add_child(ast_new("*"), $1),$3);
+																$$->astType = typeInference($1->astType, $3->astType);}
+
+					| expressao_div_mult '/' expressao_unaria	{$$ = ast_add_child(ast_add_child(ast_new("/"), $1),$3);
+																$$->astType = typeInference($1->astType, $3->astType);}
+
+					| expressao_div_mult '%' expressao_unaria	{$$ = ast_add_child(ast_add_child(ast_new("%"), $1),$3);
+																$$->astType = typeInference($1->astType, $3->astType);}
+
 					| expressao_unaria							{$$ = $1;}
 
-expressao_unaria: 	 '-' expressao_unaria	{$$ = ast_add_child(ast_new("-"), $2);}
-					| '!' expressao_unaria	{$$ = ast_add_child(ast_new("!"), $2);}
+expressao_unaria: 	 '-' expressao_unaria	{$$ = ast_add_child(ast_new("-"), $2);
+											$$->astType = $2->astType;}
+
+					| '!' expressao_unaria	{$$ = ast_add_child(ast_new("!"), $2);
+											$$->astType = $2->astType;}
+
 					| valor					{$$ = $1;}
 
 
@@ -418,6 +455,7 @@ valor: TK_IDENTIFICADOR {
 	$$ = ast_new($1.token_value);
 	verifyIdentifier(stack, $1.token_value, yylineno);
 	verifyUndeclared($1,$$,yylineno,stack);
+	$$->astType = hashSearchType($1.token_value, stack);
 }
 	| TK_LIT_FLOAT		{$$ = ast_new($1.token_value);$$->astType = AST_FLOAT;}
 	| TK_LIT_INT		{$$ = ast_new($1.token_value);$$->astType = AST_INT;}
